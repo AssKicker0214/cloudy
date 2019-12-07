@@ -5,7 +5,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 
 
-@ChannelHandler.Sharable
 public class HTTPHandler extends ChannelInboundHandlerAdapter {
     private Router router = Router.newInstance();
     @Override
@@ -13,14 +12,15 @@ public class HTTPHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof HttpRequest) {
             HttpRequest req = (HttpRequest) msg;
             System.out.println(req.uri());
-            byte[] responseBytes = req.uri().getBytes();
-            FullHttpResponse res = new DefaultFullHttpResponse(
-                    HttpVersion.HTTP_1_1,
-                    HttpResponseStatus.OK,
-                    Unpooled.wrappedBuffer(responseBytes)
-            );
-            res.headers().set("Content-Type", "text/plain");
-            res.headers().set("Content-Length", responseBytes.length);
+//            byte[] responseBytes = req.uri().getBytes();
+//            FullHttpResponse res = new DefaultFullHttpResponse(
+//                    HttpVersion.HTTP_1_1,
+//                    HttpResponseStatus.OK,
+//                    Unpooled.wrappedBuffer(responseBytes)
+//            );
+            HttpResponse res = router.dispatch(req);
+//            res.headers().set("Content-Type", "text/plain");
+//            res.headers().set("Content-Length", responseBytes.length);
             ctx.write(res);
         }
     }

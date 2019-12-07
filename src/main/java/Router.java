@@ -1,8 +1,9 @@
-import io.netty.handler.codec.http.HttpRequest;
-import routes.BaseRoute;
+import io.netty.handler.codec.http.*;
 import routes.Route;
+import routes.Routing;
 import utils.ClassUtil;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,16 +13,19 @@ import java.util.regex.Pattern;
 public class Router {
 
     private static Router instance = new Router();
-    private Map<Pattern, BaseRoute> routeMap;
+    private Map<Pattern, Route> routeMap;
 
-    void dispatch(HttpRequest req) {
+    HttpResponse dispatch(HttpRequest req) {
         for (Pattern ptn : routeMap.keySet()) {
             Matcher m = ptn.matcher(req.uri());
-//            if (m.find()) {
-//                routeMap.get(ptn)
-//                break;
-//            }
+            if (m.find()) {
+                Route route = routeMap.get(ptn);
+                String[] args = new String[m.groupCount()];
+                for (int i = 0; i < m.groupCount(); i++)   args[i] = m.group(i+1);
+                return route.process(req, args);
+            }
         }
+        return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
     }
 
     static Router newInstance() {
@@ -34,18 +38,16 @@ public class Router {
     }
 
     private void loadRoutes() {
-        Map<Pattern, BaseRoute> map = new HashMap<>();
+        Map<Pattern, Route> map = new HashMap<>();
         try {
             for (Class<?> clazz : ClassUtil.loadFrom("routes")) {
-                Route a = clazz.getAnnotation(Route.class);
+                Routing a = clazz.getAnnotation(Routing.class);
                 if (a == null) continue;
-                String[] values = a.value();
-                BaseRoute route = (BaseRoute) clazz.newInstance();
-                for (String value : values) {
-                    map.put(Pattern.compile(value), route);
-                }
+                String value = a.value();
+                Route route = (Route) clazz.getDeclaredConstructor().newInstance();
+                map.put(Pattern.compile(value), route);
             }
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
         }
         this.routeMap = Collections.unmodifiableMap(map);
@@ -53,7 +55,7 @@ public class Router {
 
     public void printRoutes() {
         System.out.println("Routes:");
-        for (Map.Entry<Pattern, BaseRoute> entry : this.routeMap.entrySet()) {
+        for (Map.Entry<Pattern, Route> entry : this.routeMap.entrySet()) {
             System.out.println(entry.getKey()+"->"+entry.getValue());
         }
     }

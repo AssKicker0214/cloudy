@@ -1,12 +1,27 @@
 package routes;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import io.netty.handler.codec.http.*;
 
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Route {
-    String[] value();
+import java.io.IOException;
+
+import static io.netty.handler.codec.http.HttpMethod.*;
+
+public abstract class Route {
+
+    public HttpResponse process(HttpRequest req, String... args) {
+        HttpMethod method = req.method();
+        try {
+            if (method == GET) return get(req, args);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_ACCEPTABLE);
+    }
+
+    protected HttpResponse get(HttpRequest req, String... args) throws IOException {
+        // 404
+        System.out.println("default action");
+        return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
+    }
 }
