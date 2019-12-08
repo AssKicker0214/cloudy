@@ -3,14 +3,19 @@ package routes;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
+import utils.StringUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
-
 
 @SuppressWarnings("Unused")
 @Routing("/static/(.+)")
@@ -30,18 +35,33 @@ public class Static extends Route {
     protected HttpResponse get(HttpRequest req, String... args) throws IOException {
         String resourcePath = args[0];
         Path targetPath = STATIC_ROOT.resolve(resourcePath);
-        if (targetPath.toFile().isFile()) {
-//            byte[] contents = "test".getBytes();
-            byte[] contents = Files.readAllBytes(targetPath);
-            HttpResponse res = new DefaultFullHttpResponse(
-                    HttpVersion.HTTP_1_1,
-                    HttpResponseStatus.OK,
-                    Unpooled.wrappedBuffer(contents)
-            );
-            res.headers().set("Content-Length", contents.length);
-            return res;
-        }else{
-            return new response.NotFound();
+        File target = targetPath.toFile();
+
+        if (!target.isFile()) return new response.NotFound();
+
+        String ifModifiedSince = req.headers().get("If-Modified-Since");
+        if (!StringUtil.isEmpty(ifModifiedSince)) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(HTTP_DATE_FORMAT, Locale.CHINA);
+            try {
+                Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
+                long ifModifiedSinceDateSeconds = ifModifiedSinceDate.getTime() / 1000;
+                long fileLastModifiedSeconds = target.lastModified() / 1000;
+                if (ifModifiedSinceDateSeconds >= fileLastModifiedSeconds) {
+                    return new response.NotModified();
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
+        byte[] contents = Files.readAllBytes(targetPath);
+        HttpResponse res = new DefaultFullHttpResponse(
+                HttpVersion.HTTP_1_1,
+                HttpResponseStatus.OK,
+                Unpooled.wrappedBuffer(contents)
+        );
+        res.headers().set("Content-Length", contents.length);
+        return res;
+
+
     }
 }
