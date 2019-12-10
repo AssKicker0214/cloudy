@@ -1,8 +1,10 @@
 import io.netty.handler.codec.http.*;
+import routes.Restful;
 import routes.Route;
 import routes.Routing;
 import utils.ClassUtil;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,19 +15,22 @@ import java.util.regex.Pattern;
 public class Router {
 
     private static Router instance = new Router();
-    private Map<Pattern, Route> routeMap;
+    private Map<Pattern, Restful> routeMap;
 
-    HttpResponse dispatch(HttpRequest req) {
+    HttpResponse dispatch(HttpRequest req) throws IOException {
         for (Pattern ptn : routeMap.keySet()) {
-            Matcher m = ptn.matcher(req.uri());
-            if (m.find()) {
-                Route route = routeMap.get(ptn);
-                String[] args = new String[m.groupCount()];
-                for (int i = 0; i < m.groupCount(); i++)   args[i] = m.group(i+1);
-                return route.process(req, args);
+            Matcher urlMather = ptn.matcher(req.uri());
+            if (!urlMather.find()) continue;
+
+            HttpMethod method = req.method();
+            String[] args = new String[urlMather.groupCount()];
+            for (int i = 0; i < urlMather.groupCount(); i++) args[i] = urlMather.group(i + 1);
+            if (method.equals(HttpMethod.GET)) {
+                Restful route = routeMap.get(ptn);
+                return route.get(req, args);
             }
         }
-        return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
+        return new response.NotFound();
     }
 
     static Router newInstance() {
@@ -38,13 +43,13 @@ public class Router {
     }
 
     private void loadRoutes() {
-        Map<Pattern, Route> map = new HashMap<>();
+        Map<Pattern, Restful> map = new HashMap<>();
         try {
             for (Class<?> clazz : ClassUtil.loadFrom("routes")) {
                 Routing a = clazz.getAnnotation(Routing.class);
                 if (a == null) continue;
                 String value = a.value();
-                Route route = (Route) clazz.getDeclaredConstructor().newInstance();
+                Restful route = (Restful) clazz.getDeclaredConstructor().newInstance();
                 map.put(Pattern.compile(value), route);
             }
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
@@ -55,8 +60,8 @@ public class Router {
 
     public void printRoutes() {
         System.out.println("Routes:");
-        for (Map.Entry<Pattern, Route> entry : this.routeMap.entrySet()) {
-            System.out.println(entry.getKey()+"->"+entry.getValue());
+        for (Map.Entry<Pattern, Restful> entry : this.routeMap.entrySet()) {
+            System.out.println(entry.getKey() + "->" + entry.getValue());
         }
     }
 }

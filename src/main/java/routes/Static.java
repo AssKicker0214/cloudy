@@ -19,7 +19,7 @@ import java.util.Objects;
 
 @SuppressWarnings("Unused")
 @Routing("/static/(.+)")
-public class Static extends Route {
+public class Static extends Route implements Restful {
     private static Path STATIC_ROOT;
 
     static {
@@ -32,7 +32,7 @@ public class Static extends Route {
     }
 
     @Override
-    protected HttpResponse get(HttpRequest req, String... args) throws IOException {
+    public HttpResponse get(HttpRequest req, String... args) throws IOException {
         String resourcePath = args[0];
         Path targetPath = STATIC_ROOT.resolve(resourcePath);
         File target = targetPath.toFile();
@@ -41,7 +41,7 @@ public class Static extends Route {
 
         String ifModifiedSince = req.headers().get("If-Modified-Since");
         if (!StringUtil.isEmpty(ifModifiedSince)) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(HTTP_DATE_FORMAT, Locale.CHINA);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(Route.HTTP_DATE_FORMAT, Locale.CHINA);
             try {
                 Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
                 long ifModifiedSinceDateSeconds = ifModifiedSinceDate.getTime() / 1000;
