@@ -49,6 +49,8 @@ public class Router {
                 Routing a = clazz.getAnnotation(Routing.class);
                 if (a == null) continue;
                 String value = a.value();
+                if(!value.startsWith("^"))  value = "^" + value;
+                if(!value.endsWith("$"))    value = value + "$";
                 Restful route = (Restful) clazz.getDeclaredConstructor().newInstance();
                 map.put(Pattern.compile(value), route);
             }

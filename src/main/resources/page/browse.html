@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/static/lib/vue.js"></script>
+
+    <script src="/static/component/arrow-nav.js"></script>
+    <link rel="stylesheet" href="/static/component/arrow-nav.css">
+</head>
+<body>
+<h1>vue</h1>
+<main>
+    <arrow-nav :path="path"></arrow-nav>
+</main>
+<button onclick="next()">click</button>
+<script>
+    function next() {
+        history.pushState(null, null, location.href + "/next")
+
+    }
+
+    const main = new Vue({
+        el: "main",
+        data: {
+            path: [
+                {
+                    text: "1"
+                },
+                {
+                    text: "second"
+                },
+                {
+                    text: "第三级"
+                },
+                {
+                    text: "4444444444444444444"
+                }
+            ]
+        },
+        method: {}
+    })
+</script>
+</body>
+</html>

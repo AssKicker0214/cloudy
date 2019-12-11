@@ -1,9 +1,11 @@
 package routes;
 
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public abstract class Route implements Restful{
 
@@ -14,4 +16,21 @@ public abstract class Route implements Restful{
         System.err.println("Made default response");
         return new response.NotFound();
     }
+
+    protected HttpResponse sendFile(Path path) {
+        byte[] bytes = {};
+        try {
+            bytes = Files.readAllBytes(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        HttpResponse res = new DefaultFullHttpResponse(
+                HttpVersion.HTTP_1_1,
+                HttpResponseStatus.OK,
+                Unpooled.wrappedBuffer(bytes)
+        );
+        res.headers().set("Content-Length", bytes.length);
+        return res;
+    }
+    
 }

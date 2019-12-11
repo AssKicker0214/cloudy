@@ -1,0 +1,19 @@
+.arrow{
+    --bg-color: gray;
+    background: var(--bg-color);
+    position: relative;
+    height: 2em;
+    padding: .5em;
+
+    margin: 0 5em;
+}
+.arrow::after{
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 100%;
+    width: 0;
+    height: 0;
+    border: solid 1em transparent;
+    border-left: solid 1em var(--bg-color);
+}
