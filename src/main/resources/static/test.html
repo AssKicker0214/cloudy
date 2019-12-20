@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<!--    <script src="/static/lib/vue.js"></script>-->
+</head>
+<body>
+<h1>test</h1>
+
+<script>
+    let ws;
+    window.onload = function () {
+        let uri = "ws://" + window.location.host;
+        ws = new WebSocket(uri);
+        ws.onmessage = (evt) => {
+            console.log(evt.data);
+        };
+        ws.onopen = evt => {
+            console.log("opened")
+        };
+        ws.onclose = evt => {
+            console.log("closed")
+        };
+        ws.onerror = evt => {
+            console.log("error");
+            console.log(evt);
+        };
+    }
+</script>
+</body>
+</html>
