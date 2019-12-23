@@ -61,7 +61,10 @@ public class Static extends Route implements Restful {
         );
         res.headers().set("Content-Length", contents.length);
         return res;
+    }
 
-
+    private String getContentType(String suffix) {
+        // TODO load a file and do the mapping
+        return null;
     }
 }

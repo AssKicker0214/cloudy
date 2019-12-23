@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 @Routing("/data-api/v1(/?|/.*)")
-public class DataAction implements Restful {
+public class DataAPI implements Restful {
     @Override
     public HttpResponse get(HttpRequest req, String... args) throws IOException {
         String sub = args[0].replaceFirst("/", "");

@@ -5,13 +5,16 @@
     <title>Title</title>
     <script src="/static/lib/vue.js"></script>
 
+    <script src="/static/component/file-list.js"></script>
+
     <script src="/static/component/arrow-nav.js"></script>
     <link rel="stylesheet" href="/static/component/arrow-nav.css">
 </head>
 <body>
 <h1>vue</h1>
 <main>
-    <arrow-nav :path="path"></arrow-nav>
+<!--    <arrow-nav :path="path"></arrow-nav>-->
+    <file-list :entries="entries"></file-list>
 </main>
 <button onclick="next()">click</button>
 <script>
@@ -20,26 +23,44 @@
 
     }
 
+    const DATA_API_PREFIX = "/data-api/v1";
+    const PAGE_ROUTE_PREFIX = "/page/browse";
     const main = new Vue({
         el: "main",
         data: {
-            path: [
-                {
-                    text: "1"
-                },
-                {
-                    text: "second"
-                },
-                {
-                    text: "第三级"
-                },
-                {
-                    text: "4444444444444444444"
-                }
-            ]
+            path: [],    // should all be directories
+            entries: [],
         },
-        method: {}
-    })
+        methods: {
+            refreshData(){
+                let apiPath = DATA_API_PREFIX + "/" + this.path.join("/");
+                fetch(apiPath).then(res => {
+                    if(res.ok && res.headers.get("Content-Type").toLowerCase() === "application/json")  return res.json();
+                }).then(j => {
+                    if (!Array.isArray(j)) {
+                        // response is not an array, discard
+                        return;
+                    }
+                    this.entries = j;
+                    console.log(j.map(x => JSON.stringify(x)).join("\n"));
+                })
+            }
+        },
+        created(){
+            this.path = parsePath();
+            this.refreshData();
+        }
+    });
+
+    function parsePath() {
+        let pathname = location.pathname;
+        if (!pathname.startsWith(PAGE_ROUTE_PREFIX)) {
+            console.error("unrecognized pathname");
+            return;
+        }
+        let dataPath = pathname.substring(PAGE_ROUTE_PREFIX.length);
+        return dataPath.split("/").filter(seg => seg !== "")
+    }
 </script>
 </body>
 </html>
