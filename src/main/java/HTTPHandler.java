@@ -25,7 +25,7 @@ public class HTTPHandler extends ChannelInboundHandlerAdapter {
             if (req.headers().get("Connection").equalsIgnoreCase("Upgrade")
                     && req.headers().get("Upgrade").equalsIgnoreCase("WebSocket")) {
                 // ws
-                ctx.pipeline().replace(this, "WebSocketHandler", new WebSocketHandler());
+                ctx.pipeline().replace(this, "WebSocketHandler", new WebSocketHandler(req.uri()));
                 this.handleWSHandShake(ctx, req);
             } else {
                 // http

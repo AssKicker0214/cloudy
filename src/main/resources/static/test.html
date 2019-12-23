@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-<!--    <script src="/static/lib/vue.js"></script>-->
+    <script src="/static/js/WebSocketWrapper.js"></script>
 </head>
 <body>
 <h1>test</h1>
@@ -11,21 +11,8 @@
 <script>
     let ws;
     window.onload = function () {
-        let uri = "ws://" + window.location.host;
-        ws = new WebSocket(uri);
-        ws.onmessage = (evt) => {
-            console.log(evt.data);
-        };
-        ws.onopen = evt => {
-            console.log("opened")
-        };
-        ws.onclose = evt => {
-            console.log("closed")
-        };
-        ws.onerror = evt => {
-            console.log("error");
-            console.log(evt);
-        };
+        ws = new WebSocketWrapper("clipboard", true);
+        ws.onmessage((evt) => console.log(evt.data));
     }
 </script>
 </body>
