@@ -1,0 +1,20 @@
+.file-list{
+    list-style: none;
+}
+
+.file-entry{
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.file-entry>.fas{
+    width: 2em;
+    display: flex;
+    align-items: center;
+
+}
+
+.file-name{
+    flex-grow: 2;
+}
