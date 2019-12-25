@@ -15,8 +15,8 @@
 <body>
 <h1>vue</h1>
 <main>
-<!--    <arrow-nav :path="path"></arrow-nav>-->
-    <file-list :entries="entries"></file-list>
+    <!--    <arrow-nav :path="path"></arrow-nav>-->
+    <file-list :entries="entries" @enter-directory="enterDirectory" @download-file="downloadFile"></file-list>
 </main>
 <button onclick="next()">click</button>
 <script>
@@ -34,10 +34,11 @@
             entries: [],
         },
         methods: {
-            refreshData(){
+            refreshData() {
+                console.log("refreshing data");
                 let apiPath = DATA_API_PREFIX + "/" + this.path.join("/");
-                fetch(apiPath).then(res => {
-                    if(res.ok && res.headers.get("Content-Type").toLowerCase() === "application/json")  return res.json();
+                return fetch(apiPath).then(res => {
+                    if (res.ok && res.headers.get("Content-Type").toLowerCase() === "application/json") return res.json();
                 }).then(j => {
                     if (!Array.isArray(j)) {
                         // response is not an array, discard
@@ -45,10 +46,33 @@
                     }
                     this.entries = j;
                     console.log(j.map(x => JSON.stringify(x)).join("\n"));
+                    return new Promise(resolve => resolve())
                 })
+            },
+            enterDirectory(name) {
+                if (name === ".." && this.path.length === 0) return;
+
+                if (name === "..") {
+                    this.path.pop();
+                } else {
+                    this.path.push(name);
+                }
+                this.refreshData().then(() => {
+                    let state = `${PAGE_ROUTE_PREFIX}/${this.path.join('/')}`;
+                    console.log("push state", state);
+                    history.pushState(this.path, null, state);
+                });
+            },
+            downloadFile(name) {
+
             }
         },
-        created(){
+        created() {
+            window.onpopstate = (evt) => {
+                this.path = evt.state;
+                this.refreshData();
+            };
+            history.pushState(this.path, null, window.location.href);
             this.path = parsePath();
             this.refreshData();
         }
@@ -63,6 +87,8 @@
         let dataPath = pathname.substring(PAGE_ROUTE_PREFIX.length);
         return dataPath.split("/").filter(seg => seg !== "")
     }
+
+
 </script>
 </body>
 </html>
