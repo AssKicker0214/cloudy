@@ -56,6 +56,11 @@ Vue.component("file-list", {
     props: {
         entries: Array
     },
+    data: function(){
+        return {
+            dropping: false
+        }
+    },
     computed: {
         _entries(){
             return [{type: 'd', name: '..'}].concat(this.entries);
@@ -64,11 +69,12 @@ Vue.component("file-list", {
 
     template:
         `
-    <ul class="file-list">
+    <ul class="file-list" @dragover="dragover($event)" @dragleave="dragleave($event)" @drop="upload($event)">
         <file-entry v-for="(entry, i) in _entries" :key="'entry-'+(i+1)" :attributes="entry" 
         @enter-directory="enterDirectory" @download-file="downloadFile">
         
         </file-entry>
+        <div class="mask" :style="{opacity: dropping ^ 0}">Drop to upload</div>
     </ul>
     `,
     methods: {
@@ -77,6 +83,27 @@ Vue.component("file-list", {
         },
         downloadFile(name) {
             this.$emit("download-file", name);
+        },
+        dragover(evt){
+            evt.stopPropagation();
+            evt.preventDefault();
+            this.dropping = true;
+            return false;
+        },
+        dragleave(evt){
+            evt.stopPropagation();
+            evt.preventDefault();
+            this.dropping = false;
+            // console.log("leave");
+            return false;
+        },
+        upload(evt){
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            this.dropping = false;
+            let files = Array.from(evt.dataTransfer.files);
+            return false;
         }
     }
 });
