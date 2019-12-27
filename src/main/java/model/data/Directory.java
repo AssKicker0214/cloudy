@@ -17,7 +17,7 @@ public class Directory extends AbstractFile {
     }
 
     @Override
-    public HttpResponse makeResponse() {
+    public HttpResponse downloadResponse() {
         String[] children = this.file.list() == null ? new String[]{} : this.file.list();
         assert children != null;
         List<FileInfo> list = Arrays.stream(children)
@@ -28,6 +28,11 @@ public class Directory extends AbstractFile {
                 .map(AbstractFile::getInfo)
                 .collect(Collectors.toList());
         return ApplicationJson.response(list);
+    }
+
+    @Override
+    public HttpResponse uploadResponse() {
+        return null;
     }
 
     @Override

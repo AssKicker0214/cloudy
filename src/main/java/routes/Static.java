@@ -19,7 +19,7 @@ import java.util.Objects;
 
 @SuppressWarnings("Unused")
 @Routing("/static/(.+)")
-public class Static extends Route implements Restful {
+public class Static extends DefaultEndpoint implements Restful {
     private static Path STATIC_ROOT;
 
     static {
@@ -41,7 +41,7 @@ public class Static extends Route implements Restful {
 
         String ifModifiedSince = req.headers().get("If-Modified-Since");
         if (!StringUtil.isEmpty(ifModifiedSince)) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(Route.HTTP_DATE_FORMAT, Locale.US);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(DefaultEndpoint.HTTP_DATE_FORMAT, Locale.US);
             try {
                 Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
                 long ifModifiedSinceDateSeconds = ifModifiedSinceDate.getTime() / 1000;

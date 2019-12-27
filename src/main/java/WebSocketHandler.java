@@ -20,7 +20,7 @@ public class WebSocketHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         if (msg instanceof WebSocketFrame) {
-            this.group.sendToAll((WebSocketFrame) msg);
+            this.group.onReceive((WebSocketFrame) msg);
         }
     }
 }

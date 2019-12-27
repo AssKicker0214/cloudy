@@ -20,7 +20,7 @@ public class Assets {
     public void load() {
         try {
             pageRoot = Paths.get(Objects.requireNonNull(BrowsePage.class.getClassLoader().getResource("page")).toURI());
-            dataRoot = Paths.get(".");
+            dataRoot = Paths.get("..");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }

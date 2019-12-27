@@ -26,10 +26,31 @@ public abstract class AbstractFile {
         return file.isDirectory();
     }
 
-    public abstract HttpResponse makeResponse();
+    public abstract HttpResponse downloadResponse();
+
+    public abstract HttpResponse uploadResponse();
 
     public static Optional<AbstractFile> get(Path sub) {
         Path abs = Assets.inst().getDataRoot().resolve(sub);
+        return getFromAbsolutePath(abs);
+    }
+
+    public boolean delete() {
+        return this.file.delete();
+    }
+
+    /*public static AbstractFile getOrCreate(Path sub) {
+        Path abs = Assets.inst().getDataRoot().resolve(sub);
+        return getFromAbsolutePath(abs).orElse(new RegularFile(abs));
+    }*/
+
+    public static Optional<AbstractFile> createAndGet(Path sub){
+        Path abs = Assets.inst().getDataRoot().resolve(sub);
+        try{
+            abs.toFile().createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return getFromAbsolutePath(abs);
     }
 
@@ -48,6 +69,10 @@ public abstract class AbstractFile {
     }
 
     public abstract char type();
+
+    public boolean exists(){
+        return this.file.exists();
+    }
 
     public FileInfo getInfo() {
         FileInfo info = new FileInfo();

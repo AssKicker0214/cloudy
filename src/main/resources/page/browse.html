@@ -5,6 +5,9 @@
     <title>Title</title>
     <link href="/static/webfonts/all.min.css" rel="stylesheet">
     <script src="/static/lib/vue.js"></script>
+    <script src="/static/js/utils.js"></script>
+    <script src="/static/js/FileTransferControl.js"></script>
+    <script src="/static/js/WebSocketWrapper.js"></script>
 
     <script src="/static/component/file-list.js"></script>
     <link rel="stylesheet" href="/static/component/file-list.css">
@@ -16,7 +19,11 @@
 <h1>vue</h1>
 <main>
     <!--    <arrow-nav :path="path"></arrow-nav>-->
-    <file-list :entries="entries" @enter-directory="enterDirectory" @download-file="downloadFile"></file-list>
+    <file-list :entries="entries"
+               @enter-directory="enterDirectory"
+               @download-file="downloadFile" @upload-file="uploadFile">
+
+    </file-list>
 </main>
 <button onclick="next()">click</button>
 <script>
@@ -65,6 +72,12 @@
             },
             downloadFile(name) {
 
+            },
+            uploadFile(files) {
+
+                let file = files[0];
+                let control = new FileTransferControl(file);
+                control.upload(DATA_API_PREFIX + '/' + this.path.join('/'));
             }
         },
         created() {
@@ -87,6 +100,7 @@
         let dataPath = pathname.substring(PAGE_ROUTE_PREFIX.length);
         return dataPath.split("/").filter(seg => seg !== "")
     }
+
 
 
 </script>

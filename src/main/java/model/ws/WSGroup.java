@@ -28,7 +28,5 @@ public abstract class WSGroup {
         this.channels.add(channel);
     }
 
-    public void sendToAll(WebSocketFrame msg) {
-        this.channels.writeAndFlush(msg);
-    }
+    public abstract void onReceive(WebSocketFrame msg) ;
 }

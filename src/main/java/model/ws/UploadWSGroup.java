@@ -3,18 +3,14 @@ package model.ws;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 
-public class ClipboardWSGroup extends WSGroup {
+public class UploadWSGroup extends WSGroup {
     private WebSocketFrame cache;
 
-    static class Holder{
-        static final ClipboardWSGroup inst = new ClipboardWSGroup();
-    }
-
-    private ClipboardWSGroup(){
+    private UploadWSGroup(){
     }
 
     public static WSGroup inst() {
-        return Holder.inst;
+        return new UploadWSGroup();
     }
 
     @Override
@@ -28,6 +24,6 @@ public class ClipboardWSGroup extends WSGroup {
     @Override
     public synchronized void onReceive(WebSocketFrame msg) {
         this.cache = msg;
-        this.channels.writeAndFlush(msg);
+        // TODO
     }
 }

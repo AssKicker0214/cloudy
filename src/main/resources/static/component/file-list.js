@@ -16,16 +16,16 @@ Vue.component("file-entry", {
 
             if(COMPRESSED_FILE_PTN.test(suffix))   return 'fa-file-archive';
             else if(TEXT_FILE_PTN.test(suffix))    return 'fa-file-text';
-            else if(CODE_FILE_PTN.test(suffix))    return 'fa-file-code';
+            else if(CODE_FILE_PTN.test(suffix))    return 'fa-code';
             else if(PDF_FILE_PTN.test(suffix))     return 'fa-file-pdf';
             else    return 'fa-file';
         },
         size(){
-            return this.attributes.type === 'd' ? '-' : this.attributes.sizeForHuman;
+            return this.attributes.type === 'd' ? '-' : this.attributes["sizeForHuman"];
         },
         time(){
-            if (this.attributes.modified) {
-            let date = new Date(this.attributes.modified);
+            if (this.attributes["modified"]) {
+            let date = new Date(this.attributes["modified"]);
             return `${date.getFullYear()}/${date.getMonth()}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`
             }else{
                 return '-';
@@ -54,7 +54,7 @@ Vue.component("file-entry", {
 
 Vue.component("file-list", {
     props: {
-        entries: Array
+        entries: Array,
     },
     data: function(){
         return {
@@ -103,6 +103,7 @@ Vue.component("file-list", {
 
             this.dropping = false;
             let files = Array.from(evt.dataTransfer.files);
+            this.$emit("upload-file", files);
             return false;
         }
     }

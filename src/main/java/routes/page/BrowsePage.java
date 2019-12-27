@@ -3,7 +3,7 @@ package routes.page;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import routes.Restful;
-import routes.Route;
+import routes.DefaultEndpoint;
 import routes.Routing;
 import utils.StringUtil;
 
@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 @Routing("/page/browse/?(|(?<=/).*)")
-public class BrowsePage extends Route implements Restful {
+public class BrowsePage extends DefaultEndpoint implements Restful {
     public static Path PAGE_ROOT;
     static {
         try {

@@ -14,8 +14,13 @@ public class RegularFile extends AbstractFile {
     }
 
     @Override
-    public HttpResponse makeResponse() {
+    public HttpResponse downloadResponse() {
         return BinaryDownload.response(this.path);
+    }
+
+    @Override
+    public HttpResponse uploadResponse() {
+        return null;
     }
 
     @Override

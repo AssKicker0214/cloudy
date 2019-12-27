@@ -6,8 +6,10 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 public class SimpleHTTPServer {
     private int port;
@@ -27,8 +29,11 @@ public class SimpleHTTPServer {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
                                     .addLast(new HttpRequestDecoder())
+//                                    .addLast(new HttpObjectAggregator(1024))
                                     .addLast(new HttpResponseEncoder())
-                                    .addLast(new HTTPHandler());
+//                                    .addLast(new ChunkedWriteHandler())
+                                    .addLast("HTTPHandler", new HTTPHandler());
+
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
