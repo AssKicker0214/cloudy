@@ -1,17 +1,21 @@
-class FileTransferControl{
+class FileTransferControl {
     constructor(file) {
         this.file = file;
     }
 
     upload(postURL) {
-        let formData = new FormData();
-        formData.append("file", this.file, this.file.name);
+        let body = "";
+        if (this.file.size < 2 ^ 20) {
+            let formData = new FormData();
+            formData.append("file", this.file, this.file.name);
+            body = formData
+        }
         return fetch(postURL, {
             method: 'POST',
-            headers:{
+            headers: {
                 "Connection": "Keep-Alive"
             },
-            body: formData
+            body: body
         });
     }
 }

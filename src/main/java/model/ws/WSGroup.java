@@ -15,6 +15,8 @@ public abstract class WSGroup {
         switch (topic) {
             case "clipboard":
                 return ClipboardWSGroup.inst();
+            case "upload":
+                return UploadWSGroup.inst();
             default:
                 return new EchoWSSingle();
         }

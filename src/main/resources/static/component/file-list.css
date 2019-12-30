@@ -13,12 +13,12 @@
     width: 2em;
     display: flex;
     align-items: center;
-
 }
 
 .file-name{
     flex-grow: 2;
 }
+
 .file-name:hover{
     cursor: pointer;
 }

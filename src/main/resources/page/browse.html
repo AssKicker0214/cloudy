@@ -74,10 +74,45 @@
 
             },
             uploadFile(files) {
-
                 let file = files[0];
-                let control = new FileTransferControl(file);
-                control.upload(DATA_API_PREFIX + '/' + this.path.join('/'));
+                let body = "";
+                if (file.size < Math.pow(2, 23)) {
+                    let formData = new FormData();
+                    formData.append("file", file, file.name);
+                    body = formData
+                }
+                fetch(DATA_API_PREFIX + "/" + this.path.map(p => p + "/").join("") + file.name, {
+                    method: 'POST',
+                    headers: {
+                        "Connection": "Keep-Alive"
+                    },
+                    body: body
+                }).then(res => {
+                    // conflict
+                    // if (res.status === 409) return;
+                    // else if (res.status === 201) {
+                        console.log("file socket");
+                        let ws = new WebSocket(`ws://${window.location.host}/upload`);
+                        const fileSize = file.size;
+                        // const blockSize = 2 ^ 24;   // 16MB
+                        const blockSize = Math.pow(2, 23);
+                        let ptr = 0;
+                        ws.onopen = () => {
+                            ws.send(this.path.map(p => p + "/") + file.name);
+                        };
+                        ws.onmessage = (evt) => {
+                            console.log(evt.data);
+                            let start = parseInt(evt.data);
+                            let end = Math.min(file.size, start + blockSize);
+                            if (end > start) {
+                                ws.send(file.slice(start, end))
+                            }else{
+                                console.log("upload done");
+                            }
+                        }
+                    // }
+                    // else return;
+                });
             }
         },
         created() {
@@ -100,7 +135,6 @@
         let dataPath = pathname.substring(PAGE_ROUTE_PREFIX.length);
         return dataPath.split("/").filter(seg => seg !== "")
     }
-
 
 
 </script>

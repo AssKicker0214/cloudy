@@ -14,13 +14,15 @@ class WebSocketWrapper {
         this.__oncloseHandler = null;
     }
 
-    send(text){
+    send(text) {
+        console.log("send:", text);
         this.core.send(text);
     }
 
     onmessage(fn) {
         this.__onmessageHandler = fn;
         this.core.onmessage = (evt) => {
+            console.log("get", evt.data);
             fn(evt);
         };
         return this;

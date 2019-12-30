@@ -35,12 +35,8 @@ public class DataAPIV1 extends DefaultEndpoint implements Restful {
         HttpPostMultipartRequestDecoder decoder = new HttpPostMultipartRequestDecoder(req);
         // TODO enable small file uploading directly through post
         String sub = args[0].replaceFirst("/", "");
-        Optional<AbstractFile> opt = AbstractFile.get(Paths.get(sub));
-        if (opt.isPresent()) {
-            return Conflict.response(sub);
-        }else{
-            return Created.response(sub);
-        }
+        boolean newlyCreated = AbstractFile.getOrCreate(Paths.get(sub));
+        return newlyCreated ? Created.response(sub) : Conflict.response(sub);
     }
 
     @Override

@@ -10,8 +10,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractFile {
+    public static final ConcurrentHashMap<String, Boolean> FILE_LOCK = new ConcurrentHashMap<>();
     protected static Logger logger = Logger.inst();
 
     protected File file;
@@ -22,7 +24,7 @@ public abstract class AbstractFile {
         this.file = path.toFile();
     }
 
-    public boolean isDirectory(){
+    public boolean isDirectory() {
         return file.isDirectory();
     }
 
@@ -44,14 +46,22 @@ public abstract class AbstractFile {
         return getFromAbsolutePath(abs).orElse(new RegularFile(abs));
     }*/
 
-    public static Optional<AbstractFile> createAndGet(Path sub){
+    /**
+     *
+     * @param sub sub path
+     * @return false if file already exists, or failed to create.
+     */
+    public static boolean getOrCreate(Path sub) {
         Path abs = Assets.inst().getDataRoot().resolve(sub);
-        try{
-            abs.toFile().createNewFile();
+        Optional<AbstractFile> opt = getFromAbsolutePath(abs);
+        try {
+            if (!opt.isPresent()) {
+                return abs.toFile().createNewFile();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return getFromAbsolutePath(abs);
+        return false;
     }
 
     protected static Optional<AbstractFile> getFromAbsolutePath(Path abs) {
@@ -70,8 +80,12 @@ public abstract class AbstractFile {
 
     public abstract char type();
 
-    public boolean exists(){
+    public boolean exists() {
         return this.file.exists();
+    }
+
+    public File getFile(){
+        return this.file;
     }
 
     public FileInfo getInfo() {
