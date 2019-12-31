@@ -48,7 +48,7 @@ public class UploadWSGroup extends WSGroup {
                 byte[] bytes = new byte[msg.content().readableBytes()];
                 msg.content().duplicate().readBytes(bytes);
                 this.raf.write(bytes);
-                System.out.println(msg.content().toString());
+                System.out.println("+"+ bytes.length + " " + this.raf.length());
                 this.channels.writeAndFlush(new TextWebSocketFrame(this.raf.length() + ""));
             }
         } catch (IOException e) {

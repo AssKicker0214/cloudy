@@ -1,7 +1,7 @@
 package model.data;
 
 import io.netty.handler.codec.http.HttpResponse;
-import model.Assets;
+import utils.Config;
 import utils.Logger;
 
 import java.io.File;
@@ -33,7 +33,7 @@ public abstract class AbstractFile {
     public abstract HttpResponse uploadResponse();
 
     public static Optional<AbstractFile> get(Path sub) {
-        Path abs = Assets.inst().getDataRoot().resolve(sub);
+        Path abs = Config.dataRoot().resolve(sub);
         return getFromAbsolutePath(abs);
     }
 
@@ -52,7 +52,7 @@ public abstract class AbstractFile {
      * @return false if file already exists, or failed to create.
      */
     public static boolean getOrCreate(Path sub) {
-        Path abs = Assets.inst().getDataRoot().resolve(sub);
+        Path abs = Config.dataRoot().resolve(sub);
         Optional<AbstractFile> opt = getFromAbsolutePath(abs);
         try {
             if (!opt.isPresent()) {

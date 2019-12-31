@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+@Deprecated
 public class Assets {
     private static final Assets self = new Assets();
 

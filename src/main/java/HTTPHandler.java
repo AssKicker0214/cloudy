@@ -10,6 +10,7 @@ import response.NotFound;
 import routes.DefaultEndpoint;
 import routes.RestCall;
 import routes.Restful;
+import utils.Config;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -72,7 +73,12 @@ public class HTTPHandler extends ChannelInboundHandlerAdapter {
 
         String wsURL = String.format("ws://%s%s", req.headers().get("Host"), req.uri());
         System.out.println("ws url: " + wsURL);
-        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(wsURL, null, true);
+        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
+                wsURL,
+                null,
+                true,
+                Config.getIntOrDefault("MAX_WEBSOCKET_FRAME_SIZE", 83388608)
+        );
         WebSocketServerHandshaker shaker = wsFactory.newHandshaker(req);
         if (shaker == null) {
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());

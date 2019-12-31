@@ -10,6 +10,7 @@ import response.*;
 import routes.DefaultEndpoint;
 import routes.Restful;
 import routes.Routing;
+import utils.Config;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +36,9 @@ public class DataAPIV1 extends DefaultEndpoint implements Restful {
         String directory = args[0].replaceFirst("/", "");
         Path sub = Paths.get(directory).resolve(filename);
         boolean newlyCreated = AbstractFile.getOrCreate(sub);
-        return newlyCreated ? Created.response(sub.toString()) : Conflict.response(sub.toString());
+        HttpResponse res = newlyCreated ? Created.response(sub.toString()) : Conflict.response(sub.toString());
+        res.headers().setInt("Max-Block-Size", Config.getIntOrDefault("MAX_WEBSOCKET_FRAME_SIZE", 65536));
+        return res;
     }
 
     @Override

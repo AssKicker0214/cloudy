@@ -109,8 +109,7 @@
                         let ws = new WebSocket(`ws://${window.location.host}/upload`);
                         const fileSize = file.size;
                         // const blockSize = 2 ^ 24;   // 16MB
-                        const blockSize = //65536;//Math.pow(2, 23);
-                        let ptr = 0;
+                        const blockSize = res.headers.get("Max-Block-Size")
                         ws.onopen = () => {
                             ws.send(this.path.map(p => p + "/") + file.name);
                         };

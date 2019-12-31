@@ -10,6 +10,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import utils.Config;
 
 public class SimpleHTTPServer {
     private int port;
@@ -40,7 +41,8 @@ public class SimpleHTTPServer {
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            ChannelFuture f = b.bind(port).sync();
+            ChannelFuture f = b.bind("0.0.0.0", port).sync();
+            System.out.println("Listening on 0.0.0.0:"+port);
             f.channel().closeFuture().sync();
         }finally {
             workerGroup.shutdownGracefully();
@@ -53,6 +55,7 @@ public class SimpleHTTPServer {
         if (args.length > 0) {
             port = Integer.parseInt(args[0]);
         }
+        Config.refresh();
         new SimpleHTTPServer(port).run();
     }
 }
