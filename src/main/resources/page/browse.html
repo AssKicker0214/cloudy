@@ -21,7 +21,9 @@
     <!--    <arrow-nav :path="path"></arrow-nav>-->
     <file-list :entries="entries"
                @enter-directory="enterDirectory"
-               @download-file="downloadFile" @upload-file="uploadFile">
+               @download-file="downloadFile"
+               @upload-file="uploadFile"
+               @delete-file="deleteFile">
 
     </file-list>
 </main>
@@ -70,18 +72,30 @@
                     history.pushState(this.path, null, state);
                 });
             },
+            makeDataAPI(appender){
+                return (DATA_API_PREFIX + '/' + this.path.join('/') + '/' + appender).replace('//', '/');
+            },
             downloadFile(name) {
 
             },
+            deleteFile(name) {
+                fetch(this.makeDataAPI(name), {
+                    method: "DELETE"
+                }).then(res => {
+                    if(res.status === 204) console.log("deleted");
+                    else if(res.status === 404) console.log("no such resource");
+                    else console.log("delete error");
+                })
+            },
             uploadFile(files) {
                 let file = files[0];
-                let body = "";
-                if (file.size < Math.pow(2, 23)) {
-                    let formData = new FormData();
-                    formData.append("file", file, file.name);
-                    body = formData
-                }
-                fetch(DATA_API_PREFIX + "/" + this.path.map(p => p + "/").join("") + file.name, {
+                let body = file.name;
+                // if (file.size < Math.pow(2, 23)) {
+                    // let formData = new FormData();
+                    // formData.append("file", file, file.name);
+                    // body = formData
+                // }
+                fetch(DATA_API_PREFIX  + this.path.map(p => '/'+p).join(""), {
                     method: 'POST',
                     headers: {
                         "Connection": "Keep-Alive"
@@ -95,7 +109,7 @@
                         let ws = new WebSocket(`ws://${window.location.host}/upload`);
                         const fileSize = file.size;
                         // const blockSize = 2 ^ 24;   // 16MB
-                        const blockSize = Math.pow(2, 23);
+                        const blockSize = 65536;//Math.pow(2, 23);
                         let ptr = 0;
                         ws.onopen = () => {
                             ws.send(this.path.map(p => p + "/") + file.name);

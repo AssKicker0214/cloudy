@@ -1,5 +1,6 @@
 package routes.page;
 
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import routes.Restful;
@@ -25,7 +26,7 @@ public class BrowsePage extends DefaultEndpoint implements Restful {
     }
 
     @Override
-    public HttpResponse get(HttpRequest req, String... args) throws IOException {
+    public HttpResponse get(FullHttpRequest req, String... args) throws IOException {
         String file = StringUtil.isEmpty(args[0]) ? "" : args[0];
         Path path = PAGE_ROOT.resolve("browse.html");
         HttpResponse res = super.sendFile(path);

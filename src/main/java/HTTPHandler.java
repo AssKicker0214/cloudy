@@ -22,8 +22,8 @@ public class HTTPHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof HttpRequest) {
-            HttpRequest req = (HttpRequest) msg;
+        if (msg instanceof FullHttpRequest) {
+            FullHttpRequest req = (FullHttpRequest) msg;
 
             if(withHeader(req, "Connection", "Upgrade") && withHeader(req, "Upgrade", "WebSocket")){
                 // ws
@@ -50,6 +50,8 @@ public class HTTPHandler extends ChannelInboundHandlerAdapter {
                     res = endpoint.get(req, args);
                 } else if (req.method().equals(HttpMethod.POST)) {
                     res = endpoint.post(req, args);
+                }else if(req.method().equals(HttpMethod.DELETE)){
+                    res = endpoint.delete(req, args);
                 }else{
                     res = MethodNotAllowed.response(req.method().toString());
                 }

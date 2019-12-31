@@ -32,7 +32,7 @@ public class Static extends DefaultEndpoint implements Restful {
     }
 
     @Override
-    public HttpResponse get(HttpRequest req, String... args) throws IOException {
+    public HttpResponse get(FullHttpRequest req, String... args) throws IOException {
         String resourcePath = args[0];
         Path targetPath = STATIC_ROOT.resolve(resourcePath);
         File target = targetPath.toFile();

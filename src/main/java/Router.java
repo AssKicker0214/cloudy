@@ -17,7 +17,7 @@ public class Router {
     private static Router instance = new Router();
     private Map<Pattern, Restful> routeMap;
 
-    HttpResponse dispatch(HttpRequest req) throws IOException {
+    HttpResponse dispatch(FullHttpRequest req) throws IOException {
         for (Pattern ptn : routeMap.keySet()) {
             Matcher urlMather = ptn.matcher(req.uri());
             if (!urlMather.find()) continue;

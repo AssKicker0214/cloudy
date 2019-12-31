@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-@Routing("/data-api/meta(/?|/.*)")
+/*@Routing("/data-api/meta(/?|/.*)")
 public class DataAPIMeta extends DefaultEndpoint implements Restful {
     @Override
     public HttpResponse get(HttpRequest req, String... args) throws IOException {
@@ -23,4 +23,4 @@ public class DataAPIMeta extends DefaultEndpoint implements Restful {
         // bytes
 
     }
-}
+}*/
