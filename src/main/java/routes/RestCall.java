@@ -11,24 +11,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RestCall {
-    private static Map<Pattern, Restful> MAP;
+    private static Map<Pattern, Class<Restful>> MAP;
     Restful endpoint;
     String[] args;
 
     static {
-        Map<Pattern, Restful> map = new HashMap<>();
-        try {
-            for (Class<?> clazz : ClassUtil.loadFrom("routes")) {
-                Routing a = clazz.getAnnotation(Routing.class);
-                if (a == null) continue;
-                String value = a.value();
-                if(!value.startsWith("^"))  value = "^" + value;
-                if(!value.endsWith("$"))    value = value + "$";
-                Restful route = (Restful) clazz.getDeclaredConstructor().newInstance();
-                map.put(Pattern.compile(value), route);
-            }
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
+        Map<Pattern, Class<Restful>> map = new HashMap<>();
+        for (Class<?> clazz : ClassUtil.loadFrom("routes")) {
+            Routing a = clazz.getAnnotation(Routing.class);
+            if (a == null) continue;
+            String value = a.value();
+            if(!value.startsWith("^"))  value = "^" + value;
+            if(!value.endsWith("$"))    value = value + "$";
+            //noinspection unchecked
+            map.put(Pattern.compile(value), (Class<Restful>) clazz);
         }
         MAP = Collections.unmodifiableMap(map);
     }
@@ -45,7 +41,14 @@ public class RestCall {
 
             String[] args = new String[m.groupCount()];
             for (int i = 0; i < m.groupCount(); i++) args[i] = m.group(i + 1);
-            return new RestCall(MAP.get(ptn), args);
+
+            Class<Restful> clazz = MAP.get(ptn);
+            try {
+                Restful endpoint = clazz.newInstance();
+                return new RestCall(endpoint, args);
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
