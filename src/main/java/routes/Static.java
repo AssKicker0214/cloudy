@@ -1,12 +1,11 @@
 package routes;
 
 
-import com.sun.deploy.security.ValidationState;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
+import utils.MimeType;
 import utils.StringUtil;
 
-import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -23,7 +22,6 @@ import java.util.Objects;
 @Routing("/static/(.+)")
 public class Static extends DefaultEndpoint implements Restful {
     private static Path STATIC_ROOT;
-    private static MimetypesFileTypeMap TYPE_MAP = new MimetypesFileTypeMap();
 
     static {
         try {
@@ -63,13 +61,10 @@ public class Static extends DefaultEndpoint implements Restful {
                 Unpooled.wrappedBuffer(contents)
         );
         res.headers().set("Content-Length", contents.length);
-        res.headers().set("Content-Type", this.getContentType(target));
+        res.headers().set("Content-Type", MimeType.get(targetPath));
         res.headers().set("Cache-Control", "private, max-age=84600");
         res.headers().set("Last-Modified", dateFormat.format(new Date(target.lastModified())));
         return res;
     }
 
-    private String getContentType(File file) {
-        return TYPE_MAP.getContentType(file);
-    }
 }
