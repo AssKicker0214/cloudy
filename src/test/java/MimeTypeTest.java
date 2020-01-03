@@ -3,19 +3,9 @@ import utils.MimeType;
 
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class MimeTypeTest {
-
-//    @BeforeAll
-//    public void before() {
-//        assertTrue(MimeType.getAllMapping().entrySet().size() > 0);
-//    }
-
-    @Test
-    public void testWithoutSuffix(){
-        assertEquals(MimeType.get(Paths.get("path/to/target")), "application/octet-stream");
-    }
 
     @Test
     public void testBlank(){
