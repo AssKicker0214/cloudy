@@ -72,30 +72,31 @@
                     history.pushState(this.path, null, state);
                 });
             },
-            makeDataAPI(appender){
+            makeDataAPI(appender) {
                 return (DATA_API_PREFIX + '/' + this.path.join('/') + '/' + appender).replace('//', '/');
             },
             downloadFile(name) {
-
+                window.location.href = this.makeDataAPI(name);
             },
             deleteFile(name) {
                 fetch(this.makeDataAPI(name), {
                     method: "DELETE"
                 }).then(res => {
-                    if(res.status === 204) console.log("deleted");
-                    else if(res.status === 404) console.log("no such resource");
+                    if (res.status === 204) console.log("deleted");
+                    else if (res.status === 404) console.log("no such resource");
                     else console.log("delete error");
+                    this.refreshData();
                 })
             },
             uploadFile(files) {
                 let file = files[0];
                 let body = file.name;
                 // if (file.size < Math.pow(2, 23)) {
-                    // let formData = new FormData();
-                    // formData.append("file", file, file.name);
-                    // body = formData
+                // let formData = new FormData();
+                // formData.append("file", file, file.name);
+                // body = formData
                 // }
-                fetch(DATA_API_PREFIX  + this.path.map(p => '/'+p).join(""), {
+                fetch(DATA_API_PREFIX + this.path.map(p => '/' + p).join(""), {
                     method: 'POST',
                     headers: {
                         "Connection": "Keep-Alive"
@@ -105,24 +106,23 @@
                     // conflict
                     // if (res.status === 409) return;
                     // else if (res.status === 201) {
-                        console.log("file socket");
-                        let ws = new WebSocket(`ws://${window.location.host}/upload`);
-                        const fileSize = file.size;
-                        // const blockSize = 2 ^ 24;   // 16MB
-                        const blockSize = res.headers.get("Max-Block-Size")
-                        ws.onopen = () => {
-                            ws.send(this.path.map(p => p + "/") + file.name);
-                        };
-                        ws.onmessage = (evt) => {
-                            console.log(evt.data);
-                            let start = parseInt(evt.data);
-                            let end = Math.min(file.size, start + blockSize);
-                            if (end > start) {
-                                ws.send(file.slice(start, end))
-                            }else{
-                                console.log("upload done");
-                            }
+                    console.log("file socket");
+                    let ws = new WebSocket(`ws://${window.location.host}/upload`);
+                    const blockSize = parseInt(res.headers.get("Max-Block-Size"));
+                    ws.onopen = () => {
+                        ws.send(this.path.map(p => p + "/") + file.name);
+                    };
+                    ws.onmessage = (evt) => {
+                        let start = parseInt(evt.data);
+                        let end = Math.min(file.size, start + blockSize);
+                        if (end > start) {
+                            console.log(start, end, end - start);
+                            ws.send(file.slice(start, end))
+                        } else {
+                            console.log("upload done");
+                            this.refreshData();
                         }
+                    }
                     // }
                     // else return;
                 });

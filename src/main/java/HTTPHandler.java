@@ -1,6 +1,7 @@
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.stream.ChunkedWriteHandler;
@@ -27,6 +28,8 @@ public class HTTPHandler extends ChannelInboundHandlerAdapter {
 
             if(withHeader(req, "Connection", "Upgrade") && withHeader(req, "Upgrade", "WebSocket")){
                 // ws
+                ctx.pipeline().replace("HTTPAggregator","WSFrameAggregator", new WebSocketFrameAggregator(
+                        Config.getIntOrDefault("MAX_WEBSOCKET_FRAME_SIZE", 83388608)));
                 ctx.pipeline().replace(this, "WebSocketHandler", new WebSocketHandler(req.uri()));
                 this.handleWSHandShake(ctx, req);
             } else {

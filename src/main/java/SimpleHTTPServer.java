@@ -30,7 +30,7 @@ public class SimpleHTTPServer {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
                                     .addLast(new HttpRequestDecoder())
-                                    .addLast(new HttpObjectAggregator(1048576))
+                                    .addLast("HTTPAggregator", new HttpObjectAggregator(1048576))
                                     .addLast(new URIDecoder())
                                     .addLast(new HttpResponseEncoder())
 //                                    .addLast(new ChunkedWriteHandler())
