@@ -76,7 +76,8 @@
                 return (DATA_API_PREFIX + '/' + this.path.join('/') + '/' + appender).replace('//', '/');
             },
             downloadFile(name) {
-                window.location.href = this.makeDataAPI(name);
+                window.location.href = "http://"+(window.location.hostname+":"+"8080"+"/"+this.path.join("/")+"/"+name).replace("//", "/")
+                // window.location.href = this.makeDataAPI(name);
             },
             deleteFile(name) {
                 fetch(this.makeDataAPI(name), {
