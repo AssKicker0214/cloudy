@@ -23,4 +23,9 @@ public class WebSocketHandler extends ChannelInboundHandlerAdapter {
             this.group.onReceive((WebSocketFrame) msg);
         }
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+
+    }
 }

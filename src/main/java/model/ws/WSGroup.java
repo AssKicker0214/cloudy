@@ -1,10 +1,13 @@
 package model.ws;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import utils.JsonUtil;
 import utils.StringUtil;
 
 public abstract class WSGroup {
@@ -17,6 +20,8 @@ public abstract class WSGroup {
                 return ClipboardWSGroup.inst();
             case "upload":
                 return UploadWSGroup.inst();
+            case "broadcaster":
+                return BroadcasterWSGroup.inst();
             default:
                 return new EchoWSSingle();
         }
@@ -31,4 +36,14 @@ public abstract class WSGroup {
     }
 
     public abstract void onReceive(WebSocketFrame msg) ;
+
+    public void handleException(ChannelHandlerContext ctx, Throwable cause) {
+        System.out.println(cause.toString());
+    }
+
+    public void sendToAll(Object obj) {
+        String json = JsonUtil.toJson(obj);
+        WebSocketFrame frame = new TextWebSocketFrame(json);
+        this.channels.writeAndFlush(frame);
+    }
 }

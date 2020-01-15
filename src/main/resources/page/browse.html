@@ -6,8 +6,7 @@
     <link href="/static/webfonts/all.min.css" rel="stylesheet">
     <script src="/static/lib/vue.js"></script>
     <script src="/static/js/utils.js"></script>
-    <script src="/static/js/FileTransferControl.js"></script>
-    <script src="/static/js/WebSocketWrapper.js"></script>
+    <script src="/static/js/watcher.js"></script>
 
     <script src="/static/component/file-list.js"></script>
     <link rel="stylesheet" href="/static/component/file-list.css">
@@ -72,7 +71,7 @@
                     history.pushState(this.path, null, state);
                 });
             },
-            makeDataAPI(appender){
+            makeDataAPI(appender) {
                 return (DATA_API_PREFIX + '/' + this.path.join('/') + '/' + appender).replace('//', '/');
             },
             downloadFile(name) {
@@ -82,8 +81,8 @@
                 fetch(this.makeDataAPI(name), {
                     method: "DELETE"
                 }).then(res => {
-                    if(res.status === 204) console.log("deleted");
-                    else if(res.status === 404) console.log("no such resource");
+                    if (res.status === 204) console.log("deleted");
+                    else if (res.status === 404) console.log("no such resource");
                     else console.log("delete error");
                 })
             },
@@ -91,11 +90,11 @@
                 let file = files[0];
                 let body = file.name;
                 // if (file.size < Math.pow(2, 23)) {
-                    // let formData = new FormData();
-                    // formData.append("file", file, file.name);
-                    // body = formData
+                // let formData = new FormData();
+                // formData.append("file", file, file.name);
+                // body = formData
                 // }
-                fetch(DATA_API_PREFIX  + this.path.map(p => '/'+p).join(""), {
+                fetch(DATA_API_PREFIX + this.path.map(p => '/' + p).join(""), {
                     method: 'POST',
                     headers: {
                         "Connection": "Keep-Alive"
@@ -105,38 +104,41 @@
                     // conflict
                     // if (res.status === 409) return;
                     // else if (res.status === 201) {
-                        console.log("file socket");
-                        let ws = new WebSocket(`ws://${window.location.host}/upload`);
-                        const fileSize = file.size;
-                        // const blockSize = 2 ^ 24;   // 16MB
-                        const blockSize = res.headers.get("Max-Block-Size")
-                        ws.onopen = () => {
-                            ws.send(this.path.map(p => p + "/") + file.name);
-                        };
-                        ws.onmessage = (evt) => {
-                            console.log(evt.data);
-                            let start = parseInt(evt.data);
-                            let end = Math.min(file.size, start + blockSize);
-                            if (end > start) {
-                                ws.send(file.slice(start, end))
-                            }else{
-                                console.log("upload done");
-                            }
+                    console.log("file socket");
+                    let ws = new WebSocket(`ws://${window.location.host}/upload`);
+                    const blockSize = parseInt(res.headers.get("Max-Block-Size"));
+                    ws.onopen = () => {
+                        ws.send(this.path.map(p => p + "/") + file.name);
+                    };
+                    ws.onmessage = (evt) => {
+                        let start = parseInt(evt.data);
+                        let end = Math.min(file.size, start + blockSize);
+                        if (end > start) {
+                            console.log(start, end, end - start);
+                            ws.send(file.slice(start, end))
+                        } else {
+                            ws.send("");
+                            this.refreshData();
                         }
-                    // }
-                    // else return;
+                        // }
+                        // else return;
+                    };
                 });
-            }
-        },
-        created() {
-            window.onpopstate = (evt) => {
-                this.path = evt.state;
+            },
+            created() {
+                window.onpopstate = (evt) => {
+                    this.path = evt.state;
+                    this.refreshData();
+                };
+                history.pushState(this.path, null, window.location.href);
+                this.path = parsePath();
                 this.refreshData();
-            };
-            history.pushState(this.path, null, window.location.href);
-            this.path = parsePath();
-            this.refreshData();
+            }
         }
+    });
+
+    watcher.onmessage((msg) => {
+        console.log(msg);
     });
 
     function parsePath() {

@@ -7,19 +7,14 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import utils.JsonUtil;
 
 import java.nio.charset.StandardCharsets;
 
 
 public class ApplicationJson {
     public static HttpResponse response(Object any){
-        ObjectMapper mapper = new ObjectMapper();
-        String json = "";
-        try {
-            json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(any);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        String json = JsonUtil.toJson(any);
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
         HttpResponse res = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes));
         res.headers().set("Content-Length", bytes.length);
