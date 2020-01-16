@@ -2,22 +2,31 @@ const COMPRESSED_FILE_PTN = /zip|tar|tgz|gz|rar/;
 const TEXT_FILE_PTN = /txt/;
 const CODE_FILE_PTN = /xml|html|java|py|c|css|js|go/;
 const PDF_FILE_PTN = /pdf/;
+const IMAGE_FILE_PTN = /png|jpg|jpeg|svg|gif|bmp/;
+const PPT_FILE_PTN = /ppt|pptx/;
+const EXCEL_FILE_PTN = /xls|xlsx/;
+const WORD_FILE_PTN = /doc|docx/;
 
 
 Vue.component("file-entry", {
     props: {
-        attributes: Object
+        attributes: Object,
+        directoryPath: String
     },
     computed: {
         icon() {
             let type = this.attributes.type;
-            if (type === 'd') return "fa-folder";
+            if (type === 'd') return "fa fa-folder";
             let suffix = this.attributes.name.split(".").pop().toLowerCase();
 
-            if (COMPRESSED_FILE_PTN.test(suffix)) return 'fa-file-archive';
-            else if (TEXT_FILE_PTN.test(suffix)) return 'fa-file-text';
-            else if (CODE_FILE_PTN.test(suffix)) return 'fa-code';
-            else if (PDF_FILE_PTN.test(suffix)) return 'fa-file-pdf';
+            if (COMPRESSED_FILE_PTN.test(suffix)) return 'fa fa-file-archive';
+            else if (TEXT_FILE_PTN.test(suffix)) return 'fa fa-file';
+            else if (CODE_FILE_PTN.test(suffix)) return 'fa fa-code';
+            else if (PDF_FILE_PTN.test(suffix)) return 'fa fa-file-pdf';
+            else if (IMAGE_FILE_PTN.test(suffix)) return 'fa fa-file-image';
+            else if (PPT_FILE_PTN.test(suffix)) return 'fa fa-file-powerpoint';
+            else if (EXCEL_FILE_PTN.test(suffix)) return 'fa fa-file-excel';
+            else if (WORD_FILE_PTN.test(suffix)) return 'fa fa-file-word';
             else return 'fa-file';
         },
         size() {
@@ -26,19 +35,22 @@ Vue.component("file-entry", {
         time() {
             if (this.attributes["modified"]) {
                 let date = new Date(this.attributes["modified"]);
-                return `${date.getFullYear()}/${date.getMonth()}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`
+                return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`
             } else {
                 return '-';
             }
+        },
+        previewAddressPrefix(){
+            return window.location.hostname+":8080"+this.directoryPath
         }
     },
     template: `
     <li class="file-entry">
-        <i :class="['fas', icon]"></i>
+        <a :href="previewAddressPrefix+attributes.name" target="_blank" :class="['icon', icon]"></a>
         <span class="file-name" @click="clickName(attributes.name, attributes.type)">{{ attributes.name }}</span>
-        <span class="" @click="deleteFile(attributes.name, attributes.type)">delete</span>
         <span>{{ size }}</span>
         <span>{{ time }}</span>
+        <i class="remove fa fa-trash-alt" @click="remove(attributes.name, attributes.type)"></i>
     </li>
     `,
     methods: {
@@ -49,11 +61,11 @@ Vue.component("file-entry", {
                 this.$emit("download-file", name);
             }
         },
-        deleteFile(name, type) {
+        remove(name, type) {
             console.log("entry delete", name, type);
             if (type === 'd') {
                 console.info("cannot delete directory");
-            }else if (type === '-') {
+            } else if (type === '-') {
                 this.$emit("delete-file", name);
             }
 
@@ -65,6 +77,7 @@ Vue.component("file-entry", {
 Vue.component("file-list", {
     props: {
         entries: Array,
+        directoryPath: String
     },
     data: function () {
         return {
@@ -81,7 +94,8 @@ Vue.component("file-list", {
         `
     <ul class="file-list" @dragover="dragover($event)" @dragleave="dragleave($event)" @drop="upload($event)">
         <file-entry v-for="(entry, i) in _entries" :key="'entry-'+(i+1)" :attributes="entry" 
-        @enter-directory="enterDirectory" @download-file="downloadFile" @delete-file="deleteFile">
+        @enter-directory="enterDirectory" @download-file="downloadFile" @delete-file="deleteFile"
+        :directory-path="directoryPath">
         
         </file-entry>
         <div class="mask" :style="{opacity: dropping ^ 0}">Drop to upload</div>
@@ -94,7 +108,7 @@ Vue.component("file-list", {
         downloadFile(name) {
             this.$emit("download-file", name);
         },
-        deleteFile(name){
+        deleteFile(name) {
             this.$emit("delete-file", name);
         },
         dragover(evt) {

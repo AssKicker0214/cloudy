@@ -25,6 +25,7 @@
 <main>
     <!--    <arrow-nav :path="path"></arrow-nav>-->
     <file-list :entries="entries"
+               :directory-path="pathByStr"
                @enter-directory="enterDirectory"
                @download-file="downloadFile"
                @upload-file="uploadFile"
@@ -48,11 +49,12 @@
             path: [],    // should all be directories
             entries: [],
         },
-        computed: {},
-        methods: {
-            pathInStr() {
+        computed: {
+            pathByStr() {
                 return '/' + this.path.map(p => p+'/').join('');
-            },
+            }
+        },
+        methods: {
             refreshData() {
                 let apiPath = DATA_API_PREFIX + "/" + this.path.join("/");
                 return fetch(apiPath).then(res => {
@@ -82,11 +84,11 @@
                 });
             },
             makeDataAPI(appender) {
-                return (DATA_API_PREFIX + '/' + this.path.join('/') + '/' + appender).replace('//', '/');
+                return (DATA_API_PREFIX + this.pathByStr + appender).replace('//', '/');
             },
             downloadFile(name) {
-                window.location.href = "http://" + (window.location.hostname + ":" + "8080" + "/" + this.path.join("/") + "/" + name).replace("//", "/")
-                // window.location.href = this.makeDataAPI(name);
+                // window.location.href = "http://" + (window.location.hostname + ":" + "8080" + "/" + this.path.join("/") + "/" + name).replace("//", "/")
+                window.location.href = this.makeDataAPI(name);
             },
             deleteFile(name) {
                 fetch(this.makeDataAPI(name), {
@@ -118,7 +120,7 @@
                     let ws = new WebSocket(`ws://${window.location.host}/upload`);
                     const blockSize = parseInt(res.headers.get("Max-Block-Size"));
                     ws.onopen = () => {
-                        ws.send(this.pathInStr() + file.name);
+                        ws.send(this.pathByStr + file.name);
                     };
                     ws.onmessage = (evt) => {
                         let start = parseInt(evt.data);
@@ -138,7 +140,7 @@
                 console.log(`${cmd}(${args.map(a => '"' + a + '"').join(',')})`);
                 if (cmd === "REFRESH_DIRECTORY") {
                     let path = args[0];
-                    if (this.pathInStr() === path) {
+                    if (this.pathByStr === path) {
                         this.refreshData();
                     }
                 }else if (cmd === "REFRESH_CLIPBOARD") {

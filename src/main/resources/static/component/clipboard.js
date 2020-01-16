@@ -40,7 +40,7 @@ Vue.component('clipboard', {
                 method: 'POST',
                 body: this.newRecord
             }).then(res => {
-
+                if(res.ok)  this.newRecord = "";
             })
         },
         refresh(){
