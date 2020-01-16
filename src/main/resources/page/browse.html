@@ -22,6 +22,9 @@
     <link rel="stylesheet" href="/static/component/arrow-nav.css">
 </head>
 <body>
+<nav>
+
+</nav>
 <main>
     <!--    <arrow-nav :path="path"></arrow-nav>-->
     <file-list :entries="entries"
@@ -169,7 +172,17 @@
         return dataPath.split("/").filter(seg => seg !== "")
     }
 
-    const watcher = new Watcher("control", main)
+    const watcher = new Watcher("control", main);
+
+    window.onload = ()=>{
+        fetch("/meta/env/COMMIT_ID").then(res => {
+            if(res.ok) return res.text();
+        }).then(s => console.log(s));
+
+        fetch("/meta/env/COMMIT_URL").then(res => {
+            if(res.ok) return res.text();
+        }).then(s => console.log(s));
+    }
 </script>
 </body>
 </html>
