@@ -10,14 +10,18 @@
     <script src="/static/js/FileTransferControl.js"></script>
     <script src="/static/js/WebSocketWrapper.js"></script>
 
+    <link rel="stylesheet" href="/static/css/browse.css">
+
     <script src="/static/component/file-list.js"></script>
     <link rel="stylesheet" href="/static/component/file-list.css">
+
+    <script src="/static/component/clipboard.js"></script>
+    <link rel="stylesheet" href="/static/component/clipboard.css">
 
     <script src="/static/component/arrow-nav.js"></script>
     <link rel="stylesheet" href="/static/component/arrow-nav.css">
 </head>
 <body>
-<h1>vue</h1>
 <main>
     <!--    <arrow-nav :path="path"></arrow-nav>-->
     <file-list :entries="entries"
@@ -27,6 +31,7 @@
                @delete-file="deleteFile">
 
     </file-list>
+    <clipboard ref="clipboard"></clipboard>
 </main>
 <button onclick="next()">click</button>
 <script>
@@ -131,11 +136,13 @@
             },
             react(cmd, args) {
                 console.log(`${cmd}(${args.map(a => '"' + a + '"').join(',')})`);
-                if (cmd === "REFRESH_LIST") {
+                if (cmd === "REFRESH_DIRECTORY") {
                     let path = args[0];
                     if (this.pathInStr() === path) {
                         this.refreshData();
                     }
+                }else if (cmd === "REFRESH_CLIPBOARD") {
+                    this.$refs.clipboard.refresh();
                 }
             }
         },

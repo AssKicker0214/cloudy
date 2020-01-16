@@ -49,7 +49,7 @@ public class UploadWSGroup extends WSGroup {
                 if (bytes.length == 0) {
                     this.raf.close();
                     ControlWSGroup.inst().sendToAll(new ControlMessage(
-                            "REFRESH_LIST",
+                            "REFRESH_DIRECTORY",
                             this.abs.substring(0, this.abs.lastIndexOf('/')+1)
                     ));
                     System.out.println("upload done");

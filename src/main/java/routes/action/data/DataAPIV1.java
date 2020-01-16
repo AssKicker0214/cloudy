@@ -50,7 +50,7 @@ public class DataAPIV1 extends DefaultEndpoint implements Restful {
             if (deleted) {
                 ControlWSGroup.inst().sendToAll(
                         new ControlMessage(
-                                "REFRESH_LIST",
+                                "REFRESH_DIRECTORY",
                                 args[0].substring(0, args[0].lastIndexOf('/')+1))
                 );
                 return NoContent.response(sub);

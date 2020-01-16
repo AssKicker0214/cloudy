@@ -1,6 +1,7 @@
 .file-list{
     list-style: none;
     position: relative;
+    flex-grow: 5;
 }
 
 .file-entry{
