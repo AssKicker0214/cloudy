@@ -20,10 +20,12 @@ public abstract class WSGroup {
                 return ClipboardWSGroup.inst();
             case "upload":
                 return UploadWSGroup.inst();
-            case "broadcaster":
-                return BroadcasterWSGroup.inst();
-            default:
+            case "control":
+                return ControlWSGroup.inst();
+            case "echo":
                 return new EchoWSSingle();
+            default:
+                return new RejectWSSingle();
         }
     }
 

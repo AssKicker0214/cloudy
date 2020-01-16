@@ -7,6 +7,8 @@
     <script src="/static/lib/vue.js"></script>
     <script src="/static/js/utils.js"></script>
     <script src="/static/js/watcher.js"></script>
+    <script src="/static/js/FileTransferControl.js"></script>
+    <script src="/static/js/WebSocketWrapper.js"></script>
 
     <script src="/static/component/file-list.js"></script>
     <link rel="stylesheet" href="/static/component/file-list.css">
@@ -41,9 +43,12 @@
             path: [],    // should all be directories
             entries: [],
         },
+        computed: {},
         methods: {
+            pathInStr() {
+                return '/' + this.path.map(p => p+'/').join('');
+            },
             refreshData() {
-                console.log("refreshing data");
                 let apiPath = DATA_API_PREFIX + "/" + this.path.join("/");
                 return fetch(apiPath).then(res => {
                     if (res.ok && res.headers.get("Content-Type").toLowerCase() === "application/json") return res.json();
@@ -53,7 +58,7 @@
                         return;
                     }
                     this.entries = j;
-                    console.log(j.map(x => JSON.stringify(x)).join("\n"));
+                    // console.log(j.map(x => JSON.stringify(x)).join("\n"));
                     return new Promise(resolve => resolve())
                 })
             },
@@ -67,7 +72,7 @@
                 }
                 this.refreshData().then(() => {
                     let state = `${PAGE_ROUTE_PREFIX}/${this.path.join('/')}`;
-                    console.log("push state", state);
+                    // console.log("push state", state);
                     history.pushState(this.path, null, state);
                 });
             },
@@ -75,15 +80,18 @@
                 return (DATA_API_PREFIX + '/' + this.path.join('/') + '/' + appender).replace('//', '/');
             },
             downloadFile(name) {
-
+                window.location.href = "http://" + (window.location.hostname + ":" + "8080" + "/" + this.path.join("/") + "/" + name).replace("//", "/")
+                // window.location.href = this.makeDataAPI(name);
             },
             deleteFile(name) {
                 fetch(this.makeDataAPI(name), {
                     method: "DELETE"
                 }).then(res => {
-                    if (res.status === 204) console.log("deleted");
+                    if (res.status === 204) {
+                    }//console.log("deleted");
                     else if (res.status === 404) console.log("no such resource");
                     else console.log("delete error");
+                    // this.refreshData();
                 })
             },
             uploadFile(files) {
@@ -101,14 +109,11 @@
                     },
                     body: body
                 }).then(res => {
-                    // conflict
-                    // if (res.status === 409) return;
-                    // else if (res.status === 201) {
                     console.log("file socket");
                     let ws = new WebSocket(`ws://${window.location.host}/upload`);
                     const blockSize = parseInt(res.headers.get("Max-Block-Size"));
                     ws.onopen = () => {
-                        ws.send(this.path.map(p => p + "/") + file.name);
+                        ws.send(this.pathInStr() + file.name);
                     };
                     ws.onmessage = (evt) => {
                         let start = parseInt(evt.data);
@@ -117,28 +122,32 @@
                             console.log(start, end, end - start);
                             ws.send(file.slice(start, end))
                         } else {
+                            console.log("upload done");
                             ws.send("");
-                            this.refreshData();
+                            ws.close();
                         }
-                        // }
-                        // else return;
-                    };
+                    }
                 });
             },
-            created() {
-                window.onpopstate = (evt) => {
-                    this.path = evt.state;
-                    this.refreshData();
-                };
-                history.pushState(this.path, null, window.location.href);
-                this.path = parsePath();
-                this.refreshData();
+            react(cmd, args) {
+                console.log(`${cmd}(${args.map(a => '"' + a + '"').join(',')})`);
+                if (cmd === "REFRESH_LIST") {
+                    let path = args[0];
+                    if (this.pathInStr() === path) {
+                        this.refreshData();
+                    }
+                }
             }
+        },
+        created() {
+            window.onpopstate = (evt) => {
+                this.path = evt.state;
+                this.refreshData();
+            };
+            history.pushState(this.path, null, window.location.href);
+            this.path = parsePath();
+            this.refreshData();
         }
-    });
-
-    watcher.onmessage((msg) => {
-        console.log(msg);
     });
 
     function parsePath() {
@@ -151,7 +160,7 @@
         return dataPath.split("/").filter(seg => seg !== "")
     }
 
-
+    const watcher = new Watcher("control", main)
 </script>
 </body>
 </html>

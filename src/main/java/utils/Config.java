@@ -33,7 +33,7 @@ public class Config extends Properties {
     public static int getIntOrDefault(String key, int defaultValue) {
         try {
             return getInt(key);
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             return defaultValue;
         }
     }

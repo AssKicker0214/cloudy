@@ -13,7 +13,7 @@ import java.io.RandomAccessFile;
 import java.nio.file.Paths;
 
 public class UploadWSGroup extends WSGroup {
-    private String sub;
+    private String abs;
     private RandomAccessFile raf;
 
     private UploadWSGroup() {
@@ -36,21 +36,21 @@ public class UploadWSGroup extends WSGroup {
 
         try {
             if (this.raf == null) {
-                this.sub = ((TextWebSocketFrame) msg).text();
+                this.abs = ((TextWebSocketFrame) msg).text();
+                System.out.println(abs);
                 this.raf = new RandomAccessFile(
-                        AbstractFile.get(Paths.get(sub)).get().getFile(),
+                        AbstractFile.get(Paths.get(abs.replaceFirst("/", ""))).get().getFile(),
                         "rw"
                 );
-                System.out.println(sub);
                 this.channels.writeAndFlush(new TextWebSocketFrame("0"));
             } else {
                 byte[] bytes = new byte[msg.content().readableBytes()];
                 msg.content().duplicate().readBytes(bytes);
                 if (bytes.length == 0) {
                     this.raf.close();
-                    BroadcasterWSGroup.inst().sendToAll(new ControlMessage(
+                    ControlWSGroup.inst().sendToAll(new ControlMessage(
                             "REFRESH_LIST",
-                            this.sub.substring(0, Math.max(this.sub.lastIndexOf('/'), 0))
+                            this.abs.substring(0, this.abs.lastIndexOf('/')+1)
                     ));
                     System.out.println("upload done");
                 } else {

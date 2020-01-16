@@ -1,9 +1,9 @@
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import io.netty.handler.stream.ChunkedFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import response.MethodNotAllowed;
 import response.NotFound;
@@ -12,14 +12,14 @@ import routes.RestCall;
 import routes.Restful;
 import utils.Config;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 
 public class HTTPHandler extends ChannelInboundHandlerAdapter {
-
-    private Router router = Router.newInstance();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -28,6 +28,8 @@ public class HTTPHandler extends ChannelInboundHandlerAdapter {
 
             if(withHeader(req, "Connection", "Upgrade") && withHeader(req, "Upgrade", "WebSocket")){
                 // ws
+                ctx.pipeline().replace("HTTPAggregator","WSFrameAggregator", new WebSocketFrameAggregator(
+                        Config.getIntOrDefault("MAX_WEBSOCKET_FRAME_SIZE", 83388608)));
                 ctx.pipeline().replace(this, "WebSocketHandler", new WebSocketHandler(req.uri()));
                 this.handleWSHandShake(ctx, req);
             } else {
@@ -99,6 +101,21 @@ public class HTTPHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("CHANNEL ACTIVE");
+    }
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("HANDDLER ADDED");
+    }
+
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("Registerd\n\n");
     }
 
     public HttpResponse setDateHeader(HttpResponse res) {

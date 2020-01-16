@@ -3,7 +3,7 @@ package routes.action.data;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import model.data.AbstractFile;
-import model.ws.BroadcasterWSGroup;
+import model.ws.ControlWSGroup;
 import model.ws.ControlMessage;
 import response.*;
 import routes.DefaultEndpoint;
@@ -48,10 +48,10 @@ public class DataAPIV1 extends DefaultEndpoint implements Restful {
             AbstractFile af = opt.get();
             boolean deleted = af.delete();
             if (deleted) {
-                BroadcasterWSGroup.inst().sendToAll(
+                ControlWSGroup.inst().sendToAll(
                         new ControlMessage(
                                 "REFRESH_LIST",
-                                args[0].substring(0, args[0].lastIndexOf('/')))
+                                args[0].substring(0, args[0].lastIndexOf('/')+1))
                 );
                 return NoContent.response(sub);
             }

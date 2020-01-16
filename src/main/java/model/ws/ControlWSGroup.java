@@ -1,19 +1,15 @@
 package model.ws;
 
 import io.netty.channel.Channel;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import utils.JsonUtil;
 
-import java.io.Serializable;
-
-public class BroadcasterWSGroup extends WSGroup {
+public class ControlWSGroup extends WSGroup {
 
     static class Holder{
-        static final BroadcasterWSGroup inst = new BroadcasterWSGroup();
+        static final ControlWSGroup inst = new ControlWSGroup();
     }
 
-    private BroadcasterWSGroup(){
+    private ControlWSGroup(){
     }
 
     public static WSGroup inst() {

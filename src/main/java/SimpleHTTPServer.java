@@ -30,7 +30,7 @@ public class SimpleHTTPServer {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
                                     .addLast(new HttpRequestDecoder())
-                                    .addLast(new HttpObjectAggregator(1048576))
+                                    .addLast("HTTPAggregator", new HttpObjectAggregator(1048576))
                                     .addLast(new URIDecoder())
                                     .addLast(new HttpResponseEncoder())
 //                                    .addLast(new ChunkedWriteHandler())
@@ -51,11 +51,11 @@ public class SimpleHTTPServer {
     }
 
     public static void main(String[] args) throws Exception {
-        int port = 8080;
+        Config.refresh();
+        int port = Config.getIntOrDefault("SERVER_PORT", 80);
         if (args.length > 0) {
             port = Integer.parseInt(args[0]);
         }
-        Config.refresh();
         new SimpleHTTPServer(port).run();
     }
 }
