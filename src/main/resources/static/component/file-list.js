@@ -1,11 +1,13 @@
 const COMPRESSED_FILE_PTN = /zip|tar|tgz|gz|rar/;
 const TEXT_FILE_PTN = /txt/;
-const CODE_FILE_PTN = /xml|html|java|py|c|css|js|go/;
+const CODE_FILE_PTN = /xml|html|java|py|c|cpp|sh|bat|md|css|js|go/;
 const PDF_FILE_PTN = /pdf/;
-const IMAGE_FILE_PTN = /png|jpg|jpeg|svg|gif|bmp/;
+const IMAGE_FILE_PTN = /png|jpg|jpeg|svg|gif|bmp|ico|tif/;
 const PPT_FILE_PTN = /ppt|pptx/;
 const EXCEL_FILE_PTN = /xls|xlsx/;
 const WORD_FILE_PTN = /doc|docx/;
+const VIDEO_FILE_PTN = /mp4|avi|mov|mpe?g|wmv|mkv/;
+const AUDIO_FILE_PTN = /mp3|wav|ogg/;
 
 
 Vue.component("file-entry", {
@@ -27,7 +29,9 @@ Vue.component("file-entry", {
             else if (PPT_FILE_PTN.test(suffix)) return 'fa fa-file-powerpoint';
             else if (EXCEL_FILE_PTN.test(suffix)) return 'fa fa-file-excel';
             else if (WORD_FILE_PTN.test(suffix)) return 'fa fa-file-word';
-            else return 'fa-file';
+            else if(VIDEO_FILE_PTN.test(suffix)) return 'fa fa-file-video';
+            else if(AUDIO_FILE_PTN.test(suffix)) return 'fa fa-file-audio';
+            else return 'fa fa-file';
         },
         size() {
             return this.attributes.type === 'd' ? '-' : this.attributes["sizeForHuman"];
