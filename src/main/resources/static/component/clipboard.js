@@ -5,10 +5,22 @@ Vue.component('clipboard-record', {
     },
     template:
     `
-    <div class="clipboard-record">
-        <pre> {{ text }} </pre>
-    </div>
-    `
+    <li class="clipboard-record">
+        <button class="fas fa-copy" @click="copy()"></button>
+        <textarea class="thin-scrollbar" v-model="text" @focus="selectAll($event)" readonly/>
+    </li>
+    `,
+    methods: {
+        selectAll(evt){
+            let textarea = evt.target;
+            textarea.select();
+        },
+        copy(){
+            if (window.clipboardData && window.clipboardData.setData) {
+                window.clipboardData.setData("Text", this.text);
+            }
+        }
+    }
 });
 
 
@@ -27,9 +39,8 @@ Vue.component('clipboard', {
     <section class="clipboard">
     <textarea @keyup.ctrl.enter="commit()" v-model="newRecord"></textarea>
     <ul>
-        <li v-for="record in list">
-            <clipboard-record :text="record.text" :id="record.id"></clipboard-record>
-        </li>
+        <clipboard-record v-for="record in list" :text="record.text" :id="record.id">
+        </clipboard-record>
     </ul>
     </section>
     `,
@@ -55,3 +66,4 @@ Vue.component('clipboard', {
         this.refresh();
     }
 });
+
