@@ -9,6 +9,10 @@
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
+    padding: 2px;
+}
+.file-entry:hover{
+    background-color: whitesmoke;
 }
 
 .file-entry>.icon{
@@ -44,6 +48,19 @@
 }
 .file-entry:hover>.remove{
     opacity: 1;
+}
+.file-entry>.file-time{
+    font-size: .8em;
+    color: gray;
+    width: 8em;
+}
+.file-entry>.file-size{
+    font-size: .8em;
+    color: gray;
+    margin: 0 1em;
+    width: 5em;
+    display: flex;
+    justify-content: flex-end;
 }
 .file-list>.mask{
     position: absolute;

@@ -39,7 +39,12 @@ Vue.component("file-entry", {
         time() {
             if (this.attributes["modified"]) {
                 let date = new Date(this.attributes["modified"]);
-                return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`
+                let yyyy = date.getFullYear();
+                let MM = date.getMonth() + 1;
+                let dd = date.getDate();
+                let HH = utils.pad(date.getHours(), 2, 0);
+                let mm = utils.pad(date.getMinutes(), 2, 0);
+                return `${yyyy}/${MM+1}/${dd} ${HH}:${mm}`
             } else {
                 return '-';
             }
@@ -52,8 +57,8 @@ Vue.component("file-entry", {
     <li class="file-entry">
         <a :href="previewAddressPrefix+attributes.name" target="_blank" :class="['icon', icon]"></a>
         <span class="file-name" @click="clickName(attributes.name, attributes.type)">{{ attributes.name }}</span>
-        <span>{{ size }}</span>
-        <span>{{ time }}</span>
+        <span class="file-time">{{ time }}</span>
+        <span class="file-size">{{ size }}</span>
         <i class="remove fa fa-trash-alt" @click="remove(attributes.name, attributes.type)"></i>
     </li>
     `,

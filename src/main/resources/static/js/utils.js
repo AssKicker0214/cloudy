@@ -33,6 +33,19 @@ const utils = {
         const YEAR = 12 * MONTH;
 
 
+    },
+    /**
+     * pad("123", 5, "0")
+     * > 00123
+     *
+     * pad("string", 10, "-")
+     * > ----string
+     * @param str: String
+     * @param width: Int
+     * @param z: String
+     */
+    pad(str, width, z){
+        return (new Array(width).join(z) + str).slice(-width);
     }
 };
 

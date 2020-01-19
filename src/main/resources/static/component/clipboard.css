@@ -29,7 +29,7 @@
     display: flex;
     justify-content: stretch;
     flex-grow: 1;
-    flex-direction: column-reverse;
+    flex-direction: column;
     list-style: none;
     padding: 0;
 }
