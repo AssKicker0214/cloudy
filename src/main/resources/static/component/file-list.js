@@ -50,7 +50,7 @@ Vue.component("file-entry", {
             }
         },
         previewAddressPrefix(){
-            return window.location.hostname+":8080"+this.directoryPath
+            return "http://"+window.location.hostname+":8080"+this.directoryPath
         }
     },
     template: `
