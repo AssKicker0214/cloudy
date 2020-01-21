@@ -10,25 +10,33 @@
     <script src="/static/js/FileTransferControl.js"></script>
     <script src="/static/js/WebSocketWrapper.js"></script>
 
+    <link rel="stylesheet" href="/static/css/browse.css">
+
     <script src="/static/component/file-list.js"></script>
     <link rel="stylesheet" href="/static/component/file-list.css">
+
+    <script src="/static/component/clipboard.js"></script>
+    <link rel="stylesheet" href="/static/component/clipboard.css">
 
     <script src="/static/component/arrow-nav.js"></script>
     <link rel="stylesheet" href="/static/component/arrow-nav.css">
 </head>
 <body>
-<h1>vue</h1>
+<nav>
+
+</nav>
 <main>
     <!--    <arrow-nav :path="path"></arrow-nav>-->
     <file-list :entries="entries"
+               :directory-path="pathByStr"
                @enter-directory="enterDirectory"
                @download-file="downloadFile"
                @upload-file="uploadFile"
                @delete-file="deleteFile">
 
     </file-list>
+    <clipboard ref="clipboard"></clipboard>
 </main>
-<button onclick="next()">click</button>
 <script>
     function next() {
         history.pushState(null, null, location.href + "/next")
@@ -43,11 +51,12 @@
             path: [],    // should all be directories
             entries: [],
         },
-        computed: {},
-        methods: {
-            pathInStr() {
+        computed: {
+            pathByStr() {
                 return '/' + this.path.map(p => p+'/').join('');
-            },
+            }
+        },
+        methods: {
             refreshData() {
                 let apiPath = DATA_API_PREFIX + "/" + this.path.join("/");
                 return fetch(apiPath).then(res => {
@@ -77,11 +86,12 @@
                 });
             },
             makeDataAPI(appender) {
-                return (DATA_API_PREFIX + '/' + this.path.join('/') + '/' + appender).replace('//', '/');
+                return (DATA_API_PREFIX + this.pathByStr + appender).replace('//', '/');
             },
             downloadFile(name) {
-                window.location.href = "http://" + (window.location.hostname + ":" + "8080" + "/" + this.path.join("/") + "/" + name).replace("//", "/")
-                // window.location.href = this.makeDataAPI(name);
+                // window.location.href = "http://" + (window.location.hostname + ":" + "8080" + "/" + this.path.join("/") + "/" + name).replace("//", "/")
+                // FIXME request header -> Accept: octet
+                window.location.href = this.makeDataAPI(name);
             },
             deleteFile(name) {
                 fetch(this.makeDataAPI(name), {
@@ -111,9 +121,9 @@
                 }).then(res => {
                     console.log("file socket");
                     let ws = new WebSocket(`ws://${window.location.host}/upload`);
-                    const blockSize = parseInt(res.headers.get("Max-Block-Size"));
+                    const blockSize = parseInt(res.headers.get("Max-Block-Size")) || 65536;
                     ws.onopen = () => {
-                        ws.send(this.pathInStr() + file.name);
+                        ws.send(this.pathByStr + file.name);
                     };
                     ws.onmessage = (evt) => {
                         let start = parseInt(evt.data);
@@ -131,11 +141,13 @@
             },
             react(cmd, args) {
                 console.log(`${cmd}(${args.map(a => '"' + a + '"').join(',')})`);
-                if (cmd === "REFRESH_LIST") {
+                if (cmd === "REFRESH_DIRECTORY") {
                     let path = args[0];
-                    if (this.pathInStr() === path) {
+                    if (this.pathByStr === path) {
                         this.refreshData();
                     }
+                }else if (cmd === "REFRESH_CLIPBOARD") {
+                    this.$refs.clipboard.refresh();
                 }
             }
         },
@@ -160,7 +172,17 @@
         return dataPath.split("/").filter(seg => seg !== "")
     }
 
-    const watcher = new Watcher("control", main)
+    const watcher = new Watcher("control", main);
+
+    window.onload = ()=>{
+        fetch("/meta/env/COMMIT_ID").then(res => {
+            if(res.ok) return res.text();
+        }).then(s => console.log(s));
+
+        fetch("/meta/env/COMMIT_URL").then(res => {
+            if(res.ok) return res.text();
+        }).then(s => console.log(s));
+    }
 </script>
 </body>
 </html>

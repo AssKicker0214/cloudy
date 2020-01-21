@@ -3,7 +3,8 @@ package model.data;
 import io.netty.handler.codec.http.HttpResponse;
 import response.ApplicationJson;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -38,5 +39,10 @@ public class Directory extends AbstractFile {
     @Override
     public char type() {
         return 'd';
+    }
+
+    @Override
+    public void create() throws IOException {
+        Files.createDirectory(this.path);
     }
 }

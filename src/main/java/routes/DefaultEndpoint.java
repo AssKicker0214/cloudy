@@ -20,6 +20,10 @@ public abstract class DefaultEndpoint implements Restful{
         return NotFound.response("");
     }
 
+    public HttpResponse put(FullHttpRequest req, String... args){
+        return MethodNotAllowed.response("");
+    }
+
     public HttpResponse post(FullHttpRequest req, String... args){
         return MethodNotAllowed.response("");
     }

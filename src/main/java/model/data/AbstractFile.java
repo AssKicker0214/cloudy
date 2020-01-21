@@ -33,7 +33,15 @@ public abstract class AbstractFile {
     public abstract HttpResponse uploadResponse();
 
     public static Optional<AbstractFile> get(Path sub) {
-        Path abs = Config.dataRoot().resolve(sub);
+        Path root = Config.dataRoot();
+        Path abs = root.resolve(sub);
+
+        return getFromAbsolutePath(abs);
+    }
+
+    public static Optional<AbstractFile> get(String sub) {
+        Path root = Config.dataRoot();
+        Path abs = root.resolve(sub.replaceAll("^/", ""));
         return getFromAbsolutePath(abs);
     }
 
@@ -79,6 +87,8 @@ public abstract class AbstractFile {
     }
 
     public abstract char type();
+
+    public abstract void create() throws IOException;
 
     public boolean exists() {
         return this.file.exists();

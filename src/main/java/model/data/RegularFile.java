@@ -3,7 +3,7 @@ package model.data;
 import io.netty.handler.codec.http.HttpResponse;
 import response.BinaryDownload;
 
-import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -26,5 +26,10 @@ public class RegularFile extends AbstractFile {
     @Override
     public char type() {
         return '-';
+    }
+
+    @Override
+    public void create() throws IOException {
+        Files.createFile(this.path);
     }
 }
