@@ -24,17 +24,18 @@ public class Storage {
      * THIS METHOD CAN BE USED TO CHECK WHETHER A FILE EXISTS
      * if the file (targeted by path) is a regular file or directory (hidden files/directories excluded),
      * return its type;
+     *
      * @param path path to file
      * @return file type, or an empty optional if the file not exists or visible to user
      */
-    public static Optional<Character> type(String path){
+    public static Optional<Character> type(String path) {
         Path realPath = getRealPath(path);
         File file = realPath.toFile();
 
         // TODO filter <meta file>
-        if(!file.exists()) return Optional.empty();
-        if(file.isDirectory()) return Optional.of(TYPE_DIRECTORY);
-        if(file.isFile()) return Optional.of(TYPE_FILE);
+        if (!file.exists()) return Optional.empty();
+        if (file.isDirectory()) return Optional.of(TYPE_DIRECTORY);
+        if (file.isFile()) return Optional.of(TYPE_FILE);
 
         return Optional.empty();
     }
@@ -43,7 +44,7 @@ public class Storage {
         Path abs = getRealPath(path);
         try {
             Files.createDirectories(abs);
-            return new DirStorage(abs);
+            return new DirStorage(abs).init();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -51,7 +52,7 @@ public class Storage {
     }
 
     public static DirStorage getDirectory(String path) {
-        if(type(path).orElse('?') != TYPE_DIRECTORY) return null;
+        if (type(path).orElse('?') != TYPE_DIRECTORY) return null;
 
         Path abs = getRealPath(path);
         return new DirStorage(abs);
@@ -94,5 +95,24 @@ public class Storage {
             e.printStackTrace();
         }
         return info;
+    }
+
+    public static Optional<Deletable> toDelete(String path) {
+        return toOperate(path);
+    }
+
+    public static Optional<Renamable> toRename(String path) {
+        return toOperate(path);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Optional<T> toOperate(String path) {
+        Optional<Character> opt = Storage.type(path);
+        if (!opt.isPresent()) return Optional.empty();
+
+        if (opt.get() == TYPE_DIRECTORY) return Optional.of((T) new FileStorage(getRealPath(path)));
+        if (opt.get() == TYPE_FILE) return Optional.of((T) new DirStorage(getRealPath(path)));
+
+        return Optional.empty();
     }
 }

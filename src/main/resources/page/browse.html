@@ -90,7 +90,6 @@
             },
             downloadFile(name) {
                 // window.location.href = "http://" + (window.location.hostname + ":" + "8080" + "/" + this.path.join("/") + "/" + name).replace("//", "/")
-                // FIXME request header -> Accept: octet
                 window.location.href = this.makeDataAPI(name);
             },
             deleteFile(name) {

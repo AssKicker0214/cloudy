@@ -52,6 +52,8 @@ public class SimpleHTTPServer {
 
     public static void main(String[] args) throws Exception {
         Config.refresh();
+        System.out.println("COMMIT_ID: "+System.getenv("COMMIT_ID"));
+        System.out.println("COMMIT_URL: "+System.getenv("COMMIT_URL"));
         int port = Config.getIntOrDefault("SERVER_PORT", 80);
         if (args.length > 0) {
             port = Integer.parseInt(args[0]);

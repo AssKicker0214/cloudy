@@ -1,4 +1,5 @@
 import io.netty.handler.codec.http.*;
+import response.NotFound;
 import routes.Restful;
 import routes.Routing;
 import utils.ClassUtil;
@@ -30,7 +31,7 @@ public class Router {
                 return route.get(req, args);
             }
         }
-        return new response.NotFound();
+        return NotFound.response(req.uri());
     }
 
     static Router newInstance() {

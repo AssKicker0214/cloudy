@@ -1,0 +1,22 @@
+body{
+    /*display: flex;*/
+    margin: 0;
+    padding: 0;
+}
+main{
+    height: 100vh;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.thin-scrollbar{
+    scrollbar-width: thin;
+}
+.thin-scrollbar::-webkit-scrollbar{
+    width: 5px;
+    height: 5px;
+    background-color: rgba(0,0,0,.1);
+}
+.thin-scrollbar::-webkit-scrollbar-thumb{
+    background-color: rgba(0,0,0,.3)
+}
