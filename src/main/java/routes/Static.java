@@ -3,6 +3,7 @@ package routes;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
+import response.NotFound;
 import utils.MimeType;
 import utils.StringUtil;
 
@@ -37,7 +38,7 @@ public class Static extends DefaultEndpoint implements Restful {
         Path targetPath = STATIC_ROOT.resolve(resourcePath);
         File target = targetPath.toFile();
 
-        if (!target.isFile()) return new response.NotFound();
+        if (!target.isFile()) return NotFound.response(resourcePath);
 
         String ifModifiedSince = req.headers().get("If-Modified-Since");
         SimpleDateFormat dateFormat = new SimpleDateFormat(DefaultEndpoint.HTTP_DATE_FORMAT, Locale.US);

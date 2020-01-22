@@ -29,6 +29,7 @@
     <!--    <arrow-nav :path="path"></arrow-nav>-->
     <file-list :entries="entries"
                :directory-path="pathByStr"
+               @create-directory="createDirectory"
                @enter-directory="enterDirectory"
                @download-file="downloadFile"
                @upload-file="uploadFile"
@@ -58,6 +59,7 @@
         },
         methods: {
             refreshData() {
+                console.log("refreshing");
                 let apiPath = DATA_API_PREFIX + "/" + this.path.join("/");
                 return fetch(apiPath).then(res => {
                     if (res.ok && res.headers.get("Content-Type").toLowerCase() === "application/json") return res.json();
@@ -69,6 +71,17 @@
                     this.entries = j;
                     // console.log(j.map(x => JSON.stringify(x)).join("\n"));
                     return new Promise(resolve => resolve())
+                })
+            },
+            createDirectory(name) {
+                fetch(this.makeDataAPI(name), {
+                    method: "PUT",
+                    headers: {
+                        "File-Type": "Directory"
+                    }
+                }).then(res => {
+                    // Created
+                    if(res.status === 201)   this.refreshData();
                 })
             },
             enterDirectory(name) {
@@ -97,6 +110,7 @@
                     method: "DELETE"
                 }).then(res => {
                     if (res.status === 204) {
+                        this.refreshData();
                     }//console.log("deleted");
                     else if (res.status === 404) console.log("no such resource");
                     else console.log("delete error");

@@ -24,6 +24,18 @@
     align-items: center;
     justify-content: center;
 }
+.file-entry>.icon.plus{
+    color: gray;
+}
+.file-entry>input{
+    border: none;
+    outline: none;
+    font-size: 1.1em;
+}
+.file-entry>input:focus{
+    /*border-bottom: solid 1px gray;*/
+    border: none;
+}
 .file-entry>.icon:hover{
     color: black;
     text-decoration: none;
@@ -78,4 +90,8 @@
     z-index: 100;
     opacity: 0;
     transition: .3s;
+}
+
+.invisible{
+    visibility: hidden;
 }

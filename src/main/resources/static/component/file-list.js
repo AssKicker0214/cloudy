@@ -59,7 +59,7 @@ Vue.component("file-entry", {
         <span class="file-name" @click="clickName(attributes.name, attributes.type)">{{ attributes.name }}</span>
         <span class="file-time">{{ time }}</span>
         <span class="file-size">{{ size }}</span>
-        <i class="remove fa fa-trash-alt" @click="remove(attributes.name, attributes.type)"></i>
+        <i :class="{invisible: attributes.type==='d'}" class="remove fa fa-trash-alt" @click="remove(attributes.name, attributes.type)"></i>
     </li>
     `,
     methods: {
@@ -73,7 +73,8 @@ Vue.component("file-entry", {
         remove(name, type) {
             console.log("entry delete", name, type);
             if (type === 'd') {
-                console.info("cannot delete directory");
+                // console.info("cannot delete directory");
+                this.$emit("delete-file", name);
             } else if (type === '-') {
                 this.$emit("delete-file", name);
             }
@@ -90,7 +91,8 @@ Vue.component("file-list", {
     },
     data: function () {
         return {
-            dropping: false
+            dropping: false,
+            newDirName: ""
         }
     },
     computed: {
@@ -102,6 +104,10 @@ Vue.component("file-list", {
     template:
         `
     <ul class="file-list" @dragover="dragover($event)" @dragleave="dragleave($event)" @drop="upload($event)">
+        <li class="file-entry">
+            <i class="icon fas fa-plus-square plus"></i>
+            <input v-model="newDirName" @keyup.enter="createDirectory" placeholder="create new directory">
+        </li>
         <file-entry v-for="(entry, i) in _entries" :key="'entry-'+(i+1)" :attributes="entry" 
         @enter-directory="enterDirectory" @download-file="downloadFile" @delete-file="deleteFile"
         :directory-path="directoryPath">
@@ -111,6 +117,10 @@ Vue.component("file-list", {
     </ul>
     `,
     methods: {
+        createDirectory(){
+            this.$emit("create-directory", this.newDirName);
+            this.newDirName = "";
+        },
         enterDirectory(name) {
             this.$emit("enter-directory", name);
         },

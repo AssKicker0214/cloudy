@@ -55,6 +55,8 @@ public class HTTPHandler extends ChannelInboundHandlerAdapter {
                     res = endpoint.post(req, args);
                 }else if(req.method().equals(HttpMethod.DELETE)){
                     res = endpoint.delete(req, args);
+                }else if(req.method().equals(HttpMethod.PUT)){
+                    res = endpoint.put(req, args);
                 }else{
                     res = MethodNotAllowed.response(req.method().toString());
                 }

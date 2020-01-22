@@ -110,8 +110,8 @@ public class Storage {
         Optional<Character> opt = Storage.type(path);
         if (!opt.isPresent()) return Optional.empty();
 
-        if (opt.get() == TYPE_DIRECTORY) return Optional.of((T) new FileStorage(getRealPath(path)));
-        if (opt.get() == TYPE_FILE) return Optional.of((T) new DirStorage(getRealPath(path)));
+        if (opt.get() == TYPE_DIRECTORY) return Optional.of((T) new DirStorage(getRealPath(path)));
+        if (opt.get() == TYPE_FILE) return Optional.of((T) new FileStorage(getRealPath(path)));
 
         return Optional.empty();
     }

@@ -15,6 +15,9 @@ public interface Restful {
 
     HttpResponse delete(FullHttpRequest req, String... args);
 
+    HttpResponse put(FullHttpRequest req, String... args);
+
+
     HttpChunkedInput getChunk();
 
 }

@@ -20,3 +20,121 @@ main{
 .thin-scrollbar::-webkit-scrollbar-thumb{
     background-color: rgba(0,0,0,.3)
 }
+
+/* common-input-control
+@author: hbqiao
+@date: 20190821*/
+
+/* DEMO
+```
+<div class="common-input-control">
+    <input placeholder="placeholder is a must">
+    <label> label must be the next sibling to input </label>
+</div>
+```
+> **Attention**: `Edge` is not supported.
+*/
+.common-input-control{
+    position: relative;
+    background-color: inherit;
+    margin-top: .5em;
+}
+.common-input-control>label{
+    position: absolute;
+    background-color: inherit;
+}
+.common-input-control>input + label{
+    margin: 0;
+    z-index: 1;
+    pointer-events: none;
+    transition: .15s;
+    white-space: nowrap;
+    font-size: .8em;
+    min-width: 0;
+
+    top: -.6em;
+    left: 1.5em;
+    font-weight: bold;
+}
+
+/* when the corresponding `input` has no focus & no text */
+/*
+`placeholder-shown` is supported by
+    - chrome: ^47,
+    - firefox: ^51,
+    - opera: ^34,
+    - ie: ^10,
+    - edge: not supported
+*/
+.common-input-control>input:not(:focus):placeholder-shown + label{
+    font-size: 1em;
+    min-width: 100%;
+    top: calc(.6em + 2px);
+    left: .3em;
+    font-weight: bold;
+}
+.common-input-control>input{
+    position: relative;
+    padding: .6em;
+    min-width: 5em;
+    width: 100%;
+    background-color: inherit;
+    border: solid 1px transparent;
+    border-bottom: solid 2px lightgray;
+    border-radius: 0px;
+}
+.common-input-control>input:focus,.common-input-control>input:not(:placeholder-shown){
+    outline: none;
+    border: solid 1px lightgray;
+    border-radius: 5px;
+}
+/* end of common-input-control */
+
+/* switch button */
+/* use only `font-size` to adjust the size */
+.common-switch-control{
+    font-size: 1.6em;
+    position: relative;
+    margin: 0 auto;
+    box-shadow: inset 0 0 .2em gray;
+    width: 1.8em;
+    height: 1em;
+    border-radius: .5em;
+    background: rgba(55,55,55,.1);
+    overflow: hidden;
+}
+.common-switch-control>.common-switch-control-float{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+.common-switch-control>.common-switch-control-float::before{
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    transition: .3s;
+    top: 2px;
+    left: 2px;
+    width: calc(1em - 4px);
+    height: calc(1em - 4px);
+    border-radius: 50%;
+    background: white;
+}
+.common-switch-control>input[type="checkbox"]{
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+}
+.common-switch-control>input[type="checkbox"]:hover{
+    cursor: pointer;
+}
+.common-switch-control>input[type="checkbox"]:checked + .common-switch-control-float::before{
+    left: calc(100% - 1em + 2px);
+}
+.common-switch-control>input[type="checkbox"]:checked + .common-switch-control-float{
+    background: #4caf50;
+}
+/* end of switch button */
