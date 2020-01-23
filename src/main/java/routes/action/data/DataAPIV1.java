@@ -49,15 +49,57 @@ public class DataAPIV1 extends DefaultEndpoint implements Restful {
         Map<String, String> syncMap = JsonUtil.fromJson(syncInfo, new TypeReference<Map<String, String>>() {
         });
         assert syncMap != null;
-        String name = syncMap.get("name");
-        String sha256 = syncMap.get("sha256");
-        int size = Integer.parseInt(syncMap.get("size"));
+        String name = syncMap.get("name");                  // file name
+        String sha256 = syncMap.get("sha256");              // file hash
+        long size = Long.parseLong(syncMap.get("size"));   // file size
 
         String path = (directory + "/" + name).replaceAll("//", "/");
 
         Optional<Character> opt = Storage.type(path);
-        if (opt.isPresent()) return Conflict.response("Already exists");
 
+        // not exists
+        if (!opt.isPresent()) {
+            return uploadNewFileResponse(path);
+        }
+
+        // exists, and is a directory
+        if (opt.get() == Storage.TYPE_DIRECTORY) {
+            return NotAcceptable.response("Directory upload is not supported");
+        }
+
+        // exists, and is a regular file
+        if (opt.get() == Storage.TYPE_FILE) {
+            // check if file size equals
+            long sizeFromSvr = Storage.fileSize(path);
+            boolean sizeEquals = sizeFromSvr == size;
+            String hashFromSvr = Storage.fileHash(path).orElse("");
+            if (sizeEquals) {
+                // if file size equals, use HASH to check if they are the same file
+                // same file
+                if (hashFromSvr.equalsIgnoreCase(sha256)) return OK.response("Already there");
+
+                // not the same
+                Optional<Deletable> toDelete = Storage.toDelete(path);
+                assert toDelete.isPresent();
+                if (toDelete.get().delete()) {
+                    return uploadNewFileResponse(path);
+                } else {
+                    return InternalServerError.response("cannot delete original file with the same name");
+                }
+            } else {
+                // the regular file on server is of different size from client
+                return Conflict.response(String.format(
+                        "{\"hash\": \"%s\", \"size\": %d}",
+                        hashFromSvr, sizeFromSvr
+                ));
+                // the client will do a partial file hashing, and decide what to do next.
+            }
+        }
+
+        return BadRequest.response("");
+    }
+
+    private HttpResponse uploadNewFileResponse(String path) {
         FileStorage file = Storage.createFile(path);
         HttpResponse res = Created.response(path);
         res.headers().set("Max-Block-Size", Config.getIntOrDefault("MAX_WEBSOCKET_FRAME_SIZE", 65536));

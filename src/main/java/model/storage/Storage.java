@@ -2,6 +2,7 @@ package model.storage;
 
 import model.data.FileInfo;
 import utils.Config;
+import utils.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +39,21 @@ public class Storage {
         if (file.isFile()) return Optional.of(TYPE_FILE);
 
         return Optional.empty();
+    }
+
+    public static Optional<String> fileHash(String path) {
+        Path realPath = getRealPath(path);
+        Optional<Character> opt = type(path);
+
+        // only regular file has a hash
+        if(!opt.isPresent() || opt.get() != TYPE_FILE)    return Optional.empty();
+
+        return Optional.ofNullable(FileUtil.sha256(realPath.toFile()));
+    }
+
+    public static long fileSize(String path) {
+        Path realPath = getRealPath(path);
+        return realPath.toFile().length();
     }
 
     public static DirStorage createDirectory(String path) {
