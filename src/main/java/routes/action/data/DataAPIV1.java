@@ -1,5 +1,6 @@
 package routes.action.data;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import model.data.FileInfo;
@@ -11,9 +12,11 @@ import routes.DefaultEndpoint;
 import routes.Restful;
 import routes.Routing;
 import utils.Config;
+import utils.JsonUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
@@ -42,8 +45,15 @@ public class DataAPIV1 extends DefaultEndpoint implements Restful {
     @Override
     public HttpResponse post(FullHttpRequest req, String... args) {
         String directory = args[0];
-        String filename = req.content().toString(StandardCharsets.UTF_8);
-        String path = (directory + "/" + filename).replaceAll("//", "/");
+        String syncInfo = req.content().toString(StandardCharsets.UTF_8);
+        Map<String, String> syncMap = JsonUtil.fromJson(syncInfo, new TypeReference<Map<String, String>>() {
+        });
+        assert syncMap != null;
+        String name = syncMap.get("name");
+        String sha256 = syncMap.get("sha256");
+        int size = Integer.parseInt(syncMap.get("size"));
+
+        String path = (directory + "/" + name).replaceAll("//", "/");
 
         Optional<Character> opt = Storage.type(path);
         if (opt.isPresent()) return Conflict.response("Already exists");
